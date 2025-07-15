@@ -1,207 +1,184 @@
-# FGIDP
+FGIDP — Family Guardian Intelligent Document Processing
+A modern, enterprise-grade React application for managing and processing payment and document requests across departments with security, traceability, and user-focused experience.
 
-**Family Guardian Intelligent Document Processing (FGIDP)**  
-A modern, production-ready application for secure, intelligent document management and processing for families and guardians.
+📚 Table of Contents
+Introduction
 
----
+Key Features
 
-## Table of Contents
+Technology Stack
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Usage](#usage)
-- [Environment Variables](#environment-variables)
-- [Scripts](#scripts)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+Getting Started
 
----
+Project Structure
 
-## Overview
+Environment Variables
 
-FGIDP is a secure, scalable, and user-friendly platform for managing, processing, and sharing sensitive family documents. It leverages modern web technologies to provide a seamless experience for guardians and family members, ensuring privacy and efficiency.
+Available Scripts
 
----
+Usage Guide
 
-## Features
+Testing
 
-- 🔒 **Secure Authentication**: Role-based access and protected routes.
-- 📄 **Document Upload & Management**: Upload, view, and organize documents.
-- 🧠 **Intelligent Processing**: Automated document classification and status tracking.
-- 📊 **Dashboard**: Overview of requests, statuses, and recent activity.
-- 🔔 **Notifications**: Stay updated on document status and requests.
-- 🌐 **Responsive UI**: Works across devices and screen sizes.
-- 🛠️ **Mock Data Support**: For development and testing.
+Deployment
 
----
+Contributing
 
-## Tech Stack
+License
 
-- **Frontend**: React, TypeScript, Vite, Tailwind CSS
-- **State Management**: React Context API
-- **Testing**: (Add your testing framework, e.g., Jest, React Testing Library)
-- **Build Tools**: Vite, PostCSS
+Contact
 
----
+🔰 Introduction
+FGIDP is a secure and intelligent document and payment request management platform designed for internal use within Family Guardian Insurance. It streamlines the creation, review, and approval of financial and departmental requests, all wrapped in a clean and responsive user interface built with React and Ant Design.
 
-## Getting Started
+✨ Key Features
+🔐 Secure Login System with role-based access
 
-### Prerequisites
+🧾 Dynamic Request Forms based on selected payment types
 
-- Node.js (v16+ recommended)
-- npm (v8+ recommended) or yarn
+📬 Notification Panel with real-time status updates
 
-### Installation
+📊 Interactive Dashboard showing real-time analytics of requests
 
-```bash
-git clone https://github.com/your-org/FGIDP.git
-cd FGIDP
+🧠 Smart UI Logic: Conditional rendering of forms and sections
+
+🔎 Advanced Filters: Sort, search, and paginate through requests
+
+📂 Draft Management: Save and resume in-progress requests
+
+📱 Fully Responsive: Seamlessly works across desktop and mobile
+
+⚙️ Technology Stack
+Frontend Framework: React (w/ TypeScript)
+
+UI Library: Ant Design
+
+Routing: React Router DOM
+
+State Management: React Context API
+
+Build Tool: Vite
+
+Styles: Tailwind CSS + Ant Design
+
+Testing: React Testing Library / Jest (configurable)
+
+🚀 Getting Started
+Prerequisites
+Node.js (v16 or higher)
+
+npm or yarn
+
+Installation
+bash
+Copy
+Edit
+git clone https://github.com/your-org/fgidp.git
+cd fgidp
 npm install
-```
-
-### Running Locally
-
-```bash
+Running the App Locally
+bash
+Copy
+Edit
 npm run dev
-```
+Visit http://localhost:5173 to open the app.
 
-The app will be available at `http://localhost:5173` (or as specified in your Vite config).
-
----
-
-## Project Structure
-
-```
-FGIDP/
-├── assets/
-│   └── images/           # SVG logos and document images
+📁 Project Structure
+bash
+Copy
+Edit
+fgidp/
+├── public/                 # Static files and favicon
 ├── src/
-│   ├── components/       # Reusable UI components
-│   │   ├── AppLayout.tsx     # Main layout wrapper
-│   │   ├── ProtectedRoute.tsx # Route protection logic
-│   │   └── common/           # Shared utilities/components (e.g., statusUtils)
-│   ├── contexts/         # React Contexts (e.g., AuthContext)
-│   ├── mock/             # Mock data for development (mockData.ts)
-│   ├── pages/            # Page components (Dashboard, Login, Requests, etc.)
-│   ├── utils/            # (Currently empty, for future utility functions)
-│   ├── App.tsx           # Main app component
-│   ├── main.tsx          # Entry point
-│   ├── index.css         # Global styles (Tailwind)
-│   └── vite-env.d.ts     # Vite/TypeScript environment types
-├── index.html            # HTML entry point
-├── package.json          # Project metadata and scripts
-├── package-lock.json     # Dependency lock file
-├── tailwind.config.js    # Tailwind CSS configuration
-├── postcss.config.js     # PostCSS configuration
-├── eslint.config.js      # ESLint configuration
-├── tsconfig.json         # TypeScript base config
-├── tsconfig.app.json     # TypeScript app config
-├── tsconfig.node.json    # TypeScript node config
-├── vite.config.ts        # Vite build config
-└── README.md             # Project documentation
-```
+│   ├── assets/             # Logos, icons, and images
+│   ├── components/         # UI components (e.g. Layout, Header, Cards)
+│   ├── contexts/           # Context providers (Auth, Notification)
+│   ├── pages/              # All route-based page components
+│   ├── routes/             # Route definitions and protected routing
+│   ├── services/           # API call utilities and mock services
+│   ├── utils/              # Helper functions and constants
+│   ├── App.tsx             # Root application component
+│   ├── main.tsx            # Entry point
+│   └── index.css           # Global styles
+├── .env                    # Environment variables
+├── package.json
+├── tailwind.config.js
+├── vite.config.ts
+└── README.md
+🔑 Environment Variables
+Create a .env file at the root:
 
-- **assets/images/**: Contains SVG logos and document images used in the UI.
-- **src/components/**: Houses all reusable UI components, including layout and route protection. The `common/` subfolder contains shared utilities like status helpers.
-- **src/contexts/**: Contains React Contexts for global state management (e.g., authentication).
-- **src/mock/**: Provides mock data for development and testing.
-- **src/pages/**: Contains all main page components (Dashboard, Login, Requests, Profile, etc.).
-- **src/utils/**: Reserved for utility/helper functions (currently empty).
-- **src/App.tsx**: The root React component.
-- **src/main.tsx**: The application entry point.
-- **src/index.css**: Global styles, primarily Tailwind CSS imports.
-- **src/vite-env.d.ts**: TypeScript environment declarations for Vite.
-- **index.html**: The main HTML file loaded by Vite.
-- **package.json**: Project metadata, dependencies, and scripts.
-- **tailwind.config.js, postcss.config.js, eslint.config.js**: Tooling and configuration files.
-- **tsconfig*.json**: TypeScript configuration files for different environments.
-- **vite.config.ts**: Vite build and dev server configuration.
-- **README.md**: This documentation file.
+env
+Copy
+Edit
+VITE_API_URL=https://api.yourdomain.com
+VITE_ENV=development
+🛠 Available Scripts
+Command	Purpose
+npm run dev	Run app in development mode
+npm run build	Create a production-ready build
+npm run preview	Preview production build locally
+npm run lint	Lint your code for best practices
+npm test	Run all tests (if testing is configured)
 
----
+📌 Usage Guide
+Login with company-issued credentials
 
-## Usage
+Dashboard shows key insights: Total, Pending, Returned, Drafts, Approved
 
-- **Login**: Access the app using your credentials.
-- **Dashboard**: View document requests and statuses.
-- **Create Request**: Submit new document processing requests.
-- **Profile**: Manage your user profile and settings.
+Create New Request using the + Create Request button
 
----
+Fields dynamically update based on payment type
 
-## Environment Variables
+View All Requests in a paginated, filterable table
 
-Create a `.env` file in the root directory and configure as needed:
+Check Notifications for status changes and approvals
 
-```
-VITE_API_URL=https://api.example.com
-VITE_APP_ENV=development
-```
+Logout via dropdown on the top-right profile section
 
----
+✅ Testing
+Testing can be integrated using React Testing Library or Jest.
 
-## Scripts
-
-| Command         | Description                  |
-|-----------------|-----------------------------|
-| `npm run dev`   | Start development server    |
-| `npm run build` | Build for production        |
-| `npm run preview` | Preview production build  |
-| `npm run lint`  | Run linter                  |
-| `npm test`      | Run tests (if configured)   |
-
----
-
-## Testing
-
-To run tests:
-
-```bash
+bash
+Copy
+Edit
 npm test
-```
+Unit and integration tests should be located in a __tests__/ folder alongside components.
 
-(Add details about your testing framework and coverage if applicable.)
+📦 Deployment
+Build your application:
 
----
+bash
+Copy
+Edit
+npm run build
+Deploy the dist/ directory to:
 
-## Deployment
+Vercel
 
-1. Build the app:
+Netlify
 
-    ```bash
-    npm run build
-    ```
+AWS S3 + CloudFront
 
-2. Deploy the contents of the `dist/` directory to your production server or static hosting provider (e.g., Vercel, Netlify, AWS S3).
+🤝 Contributing
+We welcome contributions from everyone! To contribute:
 
----
+bash
+Copy
+Edit
+git checkout -b feature/your-feature-name
+git commit -m "✨ Add your feature"
+git push origin feature/your-feature-name
+Then open a Pull Request.
 
-## Contributing
+Please follow our internal code style guide and naming conventions.
 
-Contributions are welcome! Please follow these steps:
+📄 License
+This project is licensed under the MIT License.
 
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Open a pull request.
+📬 Contact
+For support or inquiries, contact the project maintainer at:
 
-Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+📧 ayushg1@damcogroup.com
+🌐 www.familyguardian.com
 
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Contact
-
-For questions, issues, or feature requests, please open an issue or contact the maintainer at [your-email@example.com].
