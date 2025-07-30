@@ -1,0 +1,150 @@
+/* Base styles for all screen sizes */
+.request-detail-container {
+  padding: 0 16px;
+}
+
+/* Approval History Card */
+.approval-history-card {
+  background: #F8F9FB;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  border: none;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.03);
+  position: relative;
+}
+
+.request-number {
+  color: #00A383;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.status-badge {
+  background: #fff;
+  border: 1.5px solid #FF6B57;
+  color: #FF6B57;
+  border-radius: 20px;
+  padding: 2px 18px;
+  font-weight: 500;
+  font-size: 16px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.approval-message {
+  color: #23272E;
+  font-size: 16px;
+  margin: 8px 0 20px 0;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.approval-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.approval-by {
+  font-weight: 600;
+  color: #23272E;
+  font-size: 15px;
+}
+
+.approver-name {
+  font-weight: 400;
+}
+
+.approval-date {
+  color: #23272E;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* GL Account Entries */
+.amount-col {
+  padding: 0 8px;
+}
+
+.amount-label {
+  display: block;
+  margin-right: 8px;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .amount-col {
+    text-align: right;
+  }
+  
+  .approval-footer {
+    flex-wrap: nowrap;
+  }
+  
+  .amount-label {
+    display: none;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+  .approval-history-card {
+    padding: 16px;
+  }
+  
+  .request-number {
+    font-size: 16px;
+  }
+  
+  .status-badge {
+    font-size: 14px;
+    padding: 2px 12px;
+  }
+  
+  .approval-message {
+    font-size: 15px;
+  }
+  
+  .approval-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Fix for Ant Design Card padding on mobile */
+.ant-card-body {
+  padding: 16px;
+}
+
+/* Ensure proper spacing between sections */
+.ant-col {
+  margin-bottom: 16px;
+}
+
+/* Make sure text doesn't overflow */
+.ant-typography {
+  word-break: break-word;
+}
+
+/* Adjust spacing for mobile */
+@media (max-width: 767px) {
+  .ant-row {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+  
+  .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  
+  .ant-card {
+    margin-bottom: 16px;
+  }
+}

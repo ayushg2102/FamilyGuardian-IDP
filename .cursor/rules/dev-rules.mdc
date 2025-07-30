@@ -1,0 +1,120 @@
+---
+description: Development of application (specifically front-end)
+alwaysApply: false
+---
+
+# Cursor Code Generation Rules for Developers
+
+This file defines the rules that Cursor must follow when generating code for this production-level React application using the Ant Design framework. Developers are free to request any feature, refactor, or code change, but Cursor will always adhere to these rules to ensure code quality, maintainability, and consistency across the codebase.
+
+## 1. General Principles
+
+- **Production-Ready Code**: All generated code must be suitable for a production environment—robust, secure, performant, and maintainable.
+- **Ant Design First**: Use Ant Design components and patterns as the default for all UI elements unless explicitly requested otherwise.
+- **React Best Practices**: Follow idiomatic React patterns (functional components, hooks, composition over inheritance, etc.).
+- **Type Safety**: Use TypeScript for all new files and code unless the project is strictly JavaScript.
+- **Accessibility**: All UI must be accessible (WCAG 2.1 AA), including keyboard navigation, ARIA attributes, and color contrast.
+- **Security**: Never introduce XSS, CSRF, or other vulnerabilities. Sanitize all user input and output. Avoid using `dangerouslySetInnerHTML` unless absolutely necessary and document its use.
+- **Performance**: Avoid unnecessary re-renders, use memoization where appropriate, and optimize for fast load and interaction times.
+- **Consistency**: Follow existing code style, naming conventions, and folder structure. Use Prettier/ESLint formatting if configured.
+- **Documentation**: All public functions, components, and complex logic must be documented with clear JSDoc or TypeScript comments.
+- **Testing**: For all new features or changes, generate corresponding unit and integration tests following the project's test guidelines.
+
+## 2. File and Component Structure
+
+- **Component Organization**:
+  - Place new components in the appropriate directory (e.g., `src/components/` or feature-specific folders).
+  - Use PascalCase for component and file names (e.g., `UserProfile.tsx`).
+  - Co-locate component, styles, and test files when possible.
+- **Ant Design Usage**:
+  - Prefer Ant Design components for all UI (forms, tables, modals, buttons, etc.).
+  - Use Ant Design theming and layout utilities for consistent look and feel.
+  - Only use custom components when Ant Design does not provide the required functionality.
+- **Hooks and Utilities**:
+  - Place custom hooks in `src/hooks/` and utilities in `src/utils/`.
+  - Name hooks with `use` prefix (e.g., `useFetchData`).
+
+## 3. Coding Standards
+
+- **Functional Components**: Use function components and React hooks. Avoid class components unless required for legacy reasons.
+- **Props and State**:
+  - Use TypeScript interfaces/types for all props and state.
+  - Document all props in the component file.
+- **State Management**:
+  - Use React context or a state management library (e.g., Redux, Zustand) as per project conventions.
+  - Avoid prop drilling by using context or hooks.
+- **API Calls**:
+  - Use async/await for all asynchronous operations.
+  - Handle loading, error, and success states explicitly in the UI.
+  - Never expose sensitive data in the frontend.
+- **Error Handling**:
+  - Catch and handle all errors gracefully. Show user-friendly error messages using Ant Design's `message` or `notification` components.
+- **Forms**:
+  - Use Ant Design's `Form` component for all forms.
+  - Validate all user input on both client and server sides.
+  - Provide clear validation feedback to users.
+- **Styling**:
+  - Use Ant Design theming and CSS-in-JS (e.g., `styled-components`, `emotion`) or CSS Modules as per project standards.
+  - Avoid inline styles except for dynamic values.
+
+## 4. Accessibility (a11y)
+
+- All interactive elements must be keyboard accessible.
+- Use semantic HTML and appropriate ARIA attributes.
+- Ensure color contrast meets WCAG 2.1 AA standards.
+- Use Ant Design's accessibility features and enhance them as needed.
+
+## 5. Responsiveness
+
+- All UI must be fully responsive and mobile-friendly.
+- Use Ant Design's Grid, Layout, and responsive utilities (e.g., `Row`, `Col`, `useBreakpoint`) to ensure layouts adapt to all screen sizes.
+- Avoid fixed widths and heights; use relative units and flexible layouts.
+- Test and optimize for common breakpoints (mobile, tablet, desktop).
+- Ensure touch targets are appropriately sized and spaced for mobile users.
+- Hide, collapse, or adapt non-essential content on smaller screens as needed.
+- Use responsive typography and spacing for readability on all devices.
+
+## 6. Security
+
+- Never trust user input—sanitize and validate all data.
+- Avoid using `eval`, `Function`, or similar dynamic code execution.
+- Do not expose secrets, API keys, or sensitive logic in the frontend.
+- Use HTTPS for all API calls.
+
+## 7. Testing
+
+- For every new feature, bugfix, or refactor, generate or update tests.
+- Use the project's preferred testing library (e.g., React Testing Library, Vitest, Jest).
+- Cover rendering, props, user interactions, state changes, API calls, and error states.
+- Mock external dependencies and APIs in tests.
+- Ensure tests are isolated, repeatable, and fast.
+- Place test files alongside the code or in a `__tests__` directory as per project convention.
+
+## 8. Documentation and Comments
+
+- Document all exported functions, components, and complex logic.
+- Use JSDoc or TypeScript doc comments for functions and types.
+- Add inline comments for non-obvious code.
+- Update or generate README files for new modules or features as needed.
+
+## 9. Pull Request and Code Review Readiness
+
+- Ensure all code passes linting and formatting checks.
+- All tests must pass before merging.
+- Provide a clear description of changes and testing steps in PRs.
+- Reference related issues or requirements.
+
+## 10. Developer Freedom
+
+- Developers may request any feature, refactor, or code change.
+- Cursor will always follow the above rules when generating code, regardless of the request.
+- If a request conflicts with these rules, Cursor will explain the conflict and suggest a compliant alternative.
+
+---
+
+By following these rules, Cursor ensures that all code generated for this React + Ant Design production application is robust, maintainable, secure, and consistent, while enabling developer flexibility and rapid iteration.
+description:
+globs:
+alwaysApply: false
+
+---

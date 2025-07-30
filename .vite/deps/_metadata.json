@@ -1,0 +1,79 @@
+{
+  "hash": "de6e00b8",
+  "configHash": "b6845b90",
+  "lockfileHash": "05004aef",
+  "browserHash": "637e953e",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "0b80ed0c",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "3603a458",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "9d36be8b",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "5736e6c9",
+      "needsInterop": false
+    },
+    "antd": {
+      "src": "../../node_modules/antd/es/index.js",
+      "file": "antd.js",
+      "fileHash": "8865bdbf",
+      "needsInterop": false
+    },
+    "@ant-design/icons": {
+      "src": "../../node_modules/@ant-design/icons/es/index.js",
+      "file": "@ant-design_icons.js",
+      "fileHash": "f6936ef0",
+      "needsInterop": false
+    },
+    "dayjs": {
+      "src": "../../node_modules/dayjs/dayjs.min.js",
+      "file": "dayjs.js",
+      "fileHash": "335a8cd3",
+      "needsInterop": true
+    },
+    "@ant-design/charts": {
+      "src": "../../node_modules/@ant-design/charts/es/index.js",
+      "file": "@ant-design_charts.js",
+      "fileHash": "64c0eb61",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-CBMO5WXL": {
+      "file": "chunk-CBMO5WXL.js"
+    },
+    "chunk-BBMO2VD6": {
+      "file": "chunk-BBMO2VD6.js"
+    },
+    "chunk-BZ25RFDW": {
+      "file": "chunk-BZ25RFDW.js"
+    },
+    "chunk-JJ3GMTBZ": {
+      "file": "chunk-JJ3GMTBZ.js"
+    },
+    "chunk-XAXYJU77": {
+      "file": "chunk-XAXYJU77.js"
+    },
+    "chunk-ROML32FH": {
+      "file": "chunk-ROML32FH.js"
+    },
+    "chunk-ULBN3QDT": {
+      "file": "chunk-ULBN3QDT.js"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+.formInput,
+.formSelect,
+.formTextArea,
+.formDatePicker,
+.formUpload {
+  border: 1px solid #A4A7AE !important;
+  border-radius: 4px;
+  width: 100%;
+}
+
+/* Specific overrides for Ant Design components */
+.formInput input,
+.formSelect .ant-select-selector,
+.formTextArea textarea,
+.formDatePicker .ant-picker,
+.formUpload .ant-upload-select {
+  border: 1px solid #A4A7AE !important;
+  border-radius: 4px !important;
+}
+
+/* Hover and focus states */
+.formInput:focus,
+.formSelect:focus,
+.formTextArea:focus,
+.formDatePicker:focus,
+.formUpload:focus,
+.formInput:hover,
+.formSelect:hover,
+.formTextArea:hover,
+.formDatePicker:hover,
+.formUpload:hover {
+  border-color: #40a9ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  outline: none;
+}
+
+/* Disabled state */
+.formInput[disabled],
+.formSelect[disabled] .ant-select-selector,
+.formTextArea[disabled],
+.formDatePicker[disabled] .ant-picker {
+  background-color: #f5f5f5 !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+  cursor: not-allowed;
+}
