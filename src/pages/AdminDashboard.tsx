@@ -5,6 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { Dayjs } from 'dayjs';
 import { Pie } from '@ant-design/charts';
 
+// Import images
+import topRight from '../../assets/images/top_right.svg';
+import bottomLeft from '../../assets/images/bottom_left.svg';
+import draftIcon from '../../assets/images/drafticon.svg';
+import pendingIcon from '../../assets/images/PendingIcon.svg';
+import pendingAndReturnedIcon from '../../assets/images/PendingandReturnedIcon.svg';
+import approvedIcon from '../../assets/images/ApprovedIcon.svg';
+import documentIcon from '../../assets/images/Document.svg';
+
 // Import data and styles
 import { dashboardStatsData, dashboardMyRequests } from '../mock/mockData';
 import { systemAlerts, adminActions, userStatusData, userRoleData, processAdminStats, processAdminRequests } from '../mock/adminMockData';
@@ -49,6 +58,7 @@ const AdminDashboard: React.FC = () => {
     }
     return 7;
   };
+  
 
   // Handler to shift the range
   const shiftRange = (direction: 'left' | 'right') => {
@@ -66,42 +76,77 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Map icon names to actual icon imports
+  const iconMap: { [key: string]: string } = {
+    'draftIcon': draftIcon,
+    'pendingIcon': pendingIcon,
+    'pendingAndReturnedIcon': pendingAndReturnedIcon,
+    'approvedIcon': approvedIcon,
+    'documentIcon': documentIcon
+  };
+
   return (
-    <div style={dashboardStyles.container}>
-      <div style={dashboardStyles.header} className="dashboard-header">
-        <span style={dashboardStyles.headerTitle}>
+    <div style={{ ...dashboardStyles.container, position: 'relative', minHeight: '100vh' }}>
+      {/* Decorative Background Images */}
+      <img
+        src={topRight}
+        alt="Top Right Decoration"
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: window.innerWidth < 768 ? '80px' : '160px',
+          height: 'auto',
+          zIndex: 0,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      />
+      <img
+        src={bottomLeft}
+        alt="Bottom Left Decoration"
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: window.innerWidth < 768 ? '80px' : '160px',
+          height: 'auto',
+          zIndex: 0,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      />
+
+      <div style={{ ...dashboardStyles.header, padding: '24px 16px 0', marginBottom: 0 }} className="dashboard-header">
+        <span style={{ ...dashboardStyles.headerTitle, fontWeight: 700, fontSize: 'clamp(18px, 4vw, 22px)' }}>
           Admin Dashboard Overview
         </span>
-        <div style={dashboardStyles.headerActions}>
-          {/* <Button
-            type="default"
-            style={dashboardStyles.button}
-            onClick={() => navigate('/admin/users')}
-          >
-            User Management
-          </Button>
-          <Button
-            type="default"
-            style={dashboardStyles.button}
-            onClick={() => navigate('/admin/masters')}
-          >
-            Master Management
-          </Button>
-          <Button
-            type="default"
-            style={dashboardStyles.button}
-            onClick={() => navigate('/admin/ai-config')}
-          >
-            AI Configuration
-          </Button> */}
-          <div style={dashboardStyles.dateRangeContainer}>
+        <div style={{ ...dashboardStyles.headerActions, gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <LeftOutlined
               style={{ cursor: 'pointer', fontSize: 18, color: 'var(--text-main)' }}
               onClick={() => shiftRange('left')}
             />
-            <span style={dashboardStyles.dateRangeText}>
-              {formattedRange}
-            </span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: 'var(--background-light)',
+              border: '1px solid var(--border-main)',
+              borderRadius: 8,
+              padding: '0 8px',
+              height: 40,
+              minWidth: 180,
+              fontWeight: 500,
+              color: 'var(--text-main)',
+              fontSize: 15,
+              boxShadow: '0 1px 4px var(--border-grey)',
+              gap: 8,
+              justifyContent: 'center',
+            }}>
+              <span style={{ minWidth: 110, textAlign: 'center', fontWeight: 600 }}>
+                {formattedRange}
+              </span>
+            </div>
             <RightOutlined
               style={{ cursor: 'pointer', fontSize: 18, color: 'var(--text-main)' }}
               onClick={() => shiftRange('right')}
@@ -115,39 +160,114 @@ const AdminDashboard: React.FC = () => {
             format="DD MMM"
             suffixIcon={<CalendarOutlined style={{ color: 'var(--primary-color)' }} />}
           />
-          <Button
+          {/* <Button
             type="primary"
-            style={{ ...dashboardStyles.button, ...dashboardStyles.primaryButton }}
+            style={{
+              background: 'var(--primary-color)',
+              border: 'none',
+              borderRadius: 6,
+              fontWeight: 500,
+              fontSize: 13,
+              height: 34,
+              maxWidth: 140,
+              padding: '0 12px',
+              whiteSpace: 'nowrap',
+              marginLeft: 'auto'
+            }}
             onClick={() => navigate('/create-request')}
           >
             Create New Request
-          </Button>
+          </Button> */}
         </div>
       </div>
 
       {/* Stats Cards */}
-      <Row gutter={[24, 24]} style={dashboardStyles.statsRow}>
-        {statsData.map((stat, idx) => (
-          <Col key={idx} xs={24} sm={12} md={8} lg={6}>
-            <div style={dashboardStyles.statCard}>
-              <div style={{ textAlign: 'left' }}>
-                <div style={dashboardStyles.statTitle}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: '16px',
+        padding: '0 16px',
+        margin: '24px 0 0 0',
+        width: '100%',
+        boxSizing: 'border-box',
+        position: 'relative',
+        zIndex: 1
+      }}>
+        {statsData.map((stat, idx) => {
+          const icon = iconMap[stat.icon] || documentIcon;
+          return (
+            <div
+              key={idx}
+              style={{
+                background: 'var(--background-card)',
+                borderRadius: 14,
+                boxShadow: '0 4px 12px var(--border-main)',
+                padding: '24px 20px',
+                minWidth: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                height: 'auto',
+                minHeight: 100,
+                gap: '16px',
+              }}
+            >
+              <div style={{ textAlign: 'left', flex: 1, minWidth: 0 }}>
+                <div style={{
+                  color: 'var(--text-grey)',
+                  fontSize: 16,
+                  fontWeight: 400,
+                  marginBottom: 4,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
                   {stat.title}
                 </div>
-                <div style={dashboardStyles.statValue}>
+                <div style={{
+                  color: 'var(--primary-color)',
+                  fontSize: 32,
+                  fontWeight: 700,
+                  marginBottom: 2,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
                   {stat.value}
                 </div>
-                <div style={dashboardStyles.statAmount}>
+                <div style={{
+                  color: 'var(--text-main)',
+                  fontSize: 14,
+                  fontWeight: 700,
+                }}>
                   {stat.amount}
                 </div>
               </div>
-              <div style={dashboardStyles.statIcon}>
-                <img src={stat.icon} alt="Document Icon" style={{ width: 36, height: 36 }} />
+              <div style={{
+                borderRadius: '50%',
+                width: 48,
+                height: 48,
+                minWidth: 48,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--background-main)',
+                flexShrink: 0,
+              }}>
+                <img 
+                  src={icon} 
+                  alt={stat.title} 
+                  style={{ 
+                    width: 24, 
+                    height: 24,
+                    objectFit: 'contain'
+                  }} 
+                />
               </div>
             </div>
-          </Col>
-        ))}
-      </Row>
+          );
+        })}
+      </div>
 
       {/* Analytics Charts */}
       <Row gutter={[24, 24]} style={dashboardStyles.chartContainer}>

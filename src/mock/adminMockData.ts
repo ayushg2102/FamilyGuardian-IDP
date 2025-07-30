@@ -42,11 +42,27 @@ export const userRoleData = [
 ];
 
 export const processAdminStats = (stats: any[]) => {
-  return stats.map((stat) => ({
-    ...stat,
-    title: `Total ${stat.title}`,
-    value: (parseInt(stat.value) * 2).toString(),
-  }));
+  return stats.map((stat) => {
+    let icon = 'documentIcon';
+    const title = stat.title.toLowerCase();
+    
+    if (title.includes('draft')) {
+      icon = 'draftIcon';
+    } else if (title.includes('pending') && title.includes('returned')) {
+      icon = 'pendingAndReturnedIcon';
+    } else if (title.includes('pending')) {
+      icon = 'pendingIcon';
+    } else if (title.includes('approved')) {
+      icon = 'approvedIcon';
+    }
+
+    return {
+      ...stat,
+      title: stat.title, // Remove 'Total' prefix to match Dashboard
+      value: (parseInt(stat.value) * 2).toString(),
+      icon: icon
+    };
+  });
 };
 
 export const processAdminRequests = (requests: any[]) => {
