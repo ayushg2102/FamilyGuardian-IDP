@@ -18,15 +18,20 @@ const Login: React.FC = () => {
   const onFinish = async (values: { username: string; password: string; remember: boolean }) => {
     setLoading(true);
     try {
-      const success = await login(values.username, values.password, values.remember);
-      if (success) {
+      const { success, user } = await login(values.username, values.password, values.remember);
+      if (success && user) {
         message.success('Login successful!');
-        navigate('/dashboard');
+        // Redirect based on user role
+        if (user.role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         message.error('Invalid credentials');
       }
     } catch (error) {
-      console.log(error);
+      console.error('Login error:', error);
       message.error('Login failed');
     } finally {
       setLoading(false);

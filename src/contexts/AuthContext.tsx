@@ -1,17 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
   department: string;
-  role: string;
+  role: 'admin' | 'initiator' | string;
   avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, remember: boolean) => Promise<boolean>;
+  login: (email: string, password: string, remember: boolean) => Promise<{ success: boolean; user: User | null }>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = async (email: string, password: string, remember: boolean): Promise<boolean> => {
+  const login = async (email: string, password: string, remember: boolean) => {
     // Admin login
     if (email === 'admin' && password === 'admin') {
       const adminData = {
@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (remember) {
         localStorage.setItem('user', JSON.stringify(adminData));
       }
-      return true;
+      return { success: true, user: adminData };
     }
     
     // Initiator login
@@ -79,10 +79,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (remember) {
         localStorage.setItem('user', JSON.stringify(initiatorData));
       }
-      return true;
+      return { success: true, user: initiatorData };
     }
     
-    return false;
+    return { success: false, user: null };
   };
 
   const logout = () => {

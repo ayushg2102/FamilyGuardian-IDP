@@ -73,7 +73,7 @@ const AdminDashboard: React.FC = () => {
           Admin Dashboard Overview
         </span>
         <div style={dashboardStyles.headerActions}>
-          <Button
+          {/* <Button
             type="default"
             style={dashboardStyles.button}
             onClick={() => navigate('/admin/users')}
@@ -93,7 +93,7 @@ const AdminDashboard: React.FC = () => {
             onClick={() => navigate('/admin/ai-config')}
           >
             AI Configuration
-          </Button>
+          </Button> */}
           <div style={dashboardStyles.dateRangeContainer}>
             <LeftOutlined
               style={{ cursor: 'pointer', fontSize: 18, color: 'var(--text-main)' }}

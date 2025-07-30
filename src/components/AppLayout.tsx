@@ -48,6 +48,7 @@ const AppLayout: React.FC = () => {
   ];
 
   const sideMenuItems = [
+    ...(user?.role !== 'admin' ? [
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
@@ -57,6 +58,7 @@ const AppLayout: React.FC = () => {
         navigate('/dashboard');
       },
     },
+    ] : []),
     // Only show admin dashboard for admin users
     ...(user?.role === 'admin' ? [{
       key: 'admin-dashboard',
@@ -66,7 +68,35 @@ const AppLayout: React.FC = () => {
         setDrawerOpen(false);
         navigate('/admin-dashboard');
       },
-    }] : []),
+    },
+  {
+    key:'user-management',
+    icon:<UserOutlined/>,
+    label:'User Management',
+    onClick:()=>{
+      setDrawerOpen(false);
+      navigate('/admin/users');
+    },
+  },
+  {
+    key:'ai-config',
+    icon:<UserOutlined/>,
+    label:'AI Configurator',
+    onClick:()=>{
+      setDrawerOpen(false);
+      navigate('/admin/ai-config');
+    },
+  },
+  {
+    key:'master-management',
+    icon:<UserOutlined/>,
+    label:'Master Management',
+    onClick:()=>{
+      setDrawerOpen(false);
+      navigate('/admin/masters');
+    },
+  },
+] : []),
     {
       key: 'requests',
       icon: <UnorderedListOutlined />,
