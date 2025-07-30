@@ -9,6 +9,11 @@ import { notify } from '../components/common/notification';
 import { useEffect } from 'react';
 import topRight from '../../assets/images/top_right.svg';
 import bottomLeft from '../../assets/images/bottom_left.svg';
+import draftIcon from '../../assets/images/drafticon.svg';
+import pendingIcon from '../../assets/images/PendingIcon.svg';
+import pendingAndReturnedIcon from '../../assets/images/PendingandReturnedIcon.svg';
+import approvedIcon from '../../assets/images/ApprovedIcon.svg';
+import documentIcon from '../../assets/images/Document.svg';
 //Range picker
 const { RangePicker } = DatePicker;
 
@@ -21,7 +26,27 @@ const Dashboard: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const statsData = dashboardStatsData;
+  // Map the stats data with appropriate icons based on title
+  const statsData = dashboardStatsData.map(stat => {
+    let icon;
+    switch(stat.title) {
+      case 'Draft':
+        icon = draftIcon;
+        break;
+      case 'Pending':
+        icon = pendingIcon;
+        break;
+      case 'Pending & Returned':
+        icon = pendingAndReturnedIcon;
+        break;
+      case 'Approved':
+        icon = approvedIcon;
+        break;
+      default:
+        icon = documentIcon;
+    }
+    return { ...stat, icon };
+  });
   const myRequests = dashboardMyRequests;
   const notifications = dashboardNotifications;
 
@@ -204,9 +229,11 @@ const Dashboard: React.FC = () => {
               border: 'none',
               borderRadius: 6,
               fontWeight: 500,
-              fontSize: 15,
-              height: 40,
-              minWidth: 170,
+              fontSize: 14,
+              height: 36,
+              minWidth: 140,
+              padding: '0 12px',
+              whiteSpace: 'nowrap',
             }}
             onClick={() => navigate('/create-request')}
           >
@@ -219,12 +246,15 @@ const Dashboard: React.FC = () => {
         className="dashboard-stats-row"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
           gap: '16px',
           padding: '0 16px',
           margin: '24px 0 0 0',
           width: '100%',
           boxSizing: 'border-box',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}
       >
         {statsData.map((stat, idx) => (
@@ -279,15 +309,17 @@ const Dashboard: React.FC = () => {
             <div
               style={{
                 borderRadius: '50%',
-                width: 60,
-                height: 60,
+                width: 48,
+                height: 48,
+                minWidth: 48,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 background: 'var(--background-main)',
+                flexShrink: 0,
               }}
             >
-              <img src={stat.icon} alt="Document Icon" style={{ width: 36, height: 36 }} />
+              <img src={stat.icon} alt={stat.title} style={{ width: 28, height: 28 }} />
             </div>
           </div>
         ))}
