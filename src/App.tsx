@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useRoutes } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
@@ -38,15 +38,24 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/set-password" element={<SetPassword />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <AppLayout />
-                  </ProtectedRoute>
-                }
-              >
+              {/* Main app layout with protected routes */}
+              <Route element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }>
+                {/* Regular user routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                
+                {/* Admin dashboard with role protection */}
+                <Route 
+                  path="/admin-dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']} redirectTo="/dashboard">
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
                 {/* Include all admin routes */}
                 {adminRoutes.map((route, index) => (
                   <Route

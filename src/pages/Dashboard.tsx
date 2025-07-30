@@ -129,14 +129,13 @@ const Dashboard: React.FC = () => {
           alignItems: 'center',
           padding: '24px 16px 0',
           marginBottom: 0,
-          flexWrap: 'wrap',
-          gap: '16px 0',
           width: '100%',
           boxSizing: 'border-box',
+          gap: '16px',
         }}
         className="dashboard-header responsive-dashboard-header"
       >
-        <div style={{ flex: '1 1 100%', minWidth: 0 }}>
+        <div style={{ flex: '2', minWidth: 0 }}>
           <span
             className="dashboard-title"
             style={{
@@ -157,15 +156,15 @@ const Dashboard: React.FC = () => {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
-            flexWrap: 'wrap',
-            width: '100%',
             justifyContent: 'flex-end',
+            flex: '1',
+            minWidth: '200px',
+            maxWidth: '33%',
           }}
         >
           {/* Calendar Range Picker */}
           {/* Selected Date Range Box with Arrows */}
-          <div
+          {/* <div
             className="dashboard-date-box"
             style={{
               display: 'flex',
@@ -220,7 +219,7 @@ const Dashboard: React.FC = () => {
             onClick={() => navigate('/admin-dashboard')}
           >
             Admin Dashboard
-          </Button>
+          </Button> */}
           <Button
             type="primary"
             className="dashboard-create-btn"
@@ -229,10 +228,10 @@ const Dashboard: React.FC = () => {
               border: 'none',
               borderRadius: 6,
               fontWeight: 500,
-              fontSize: 14,
-              height: 36,
-              minWidth: 140,
-              padding: '0 12px',
+              fontSize: 13,
+              height: 34,
+              maxWidth: 140,
+              padding: '0 6px',
               whiteSpace: 'nowrap',
             }}
             onClick={() => navigate('/create-request')}

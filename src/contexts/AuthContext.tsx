@@ -40,27 +40,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string, remember: boolean): Promise<boolean> => {
-    // Simulate API call
-    if (email === 'james.blunt@companyname.com' && password === 'password') {
-      const userData = {
-        id: '1',
-        name: 'John Smith',
-        email: 'james.blunt@companyname.com',
-        department: 'IT & Services',
-        role: 'Department Head',
+    // Admin login
+    if (email === 'admin' && password === 'admin') {
+      const adminData = {
+        id: 'admin-1',
+        name: 'Admin User',
+        email: 'admin@familyguardian.com',
+        department: 'Administration',
+        role: 'admin',
+        avatar:
+          'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      };
+
+      setUser(adminData);
+      setIsAuthenticated(true);
+
+      if (remember) {
+        localStorage.setItem('user', JSON.stringify(adminData));
+      }
+      return true;
+    }
+    
+    // Initiator login
+    if (email === 'james' && password === 'password') {
+      const initiatorData = {
+        id: 'user-1',
+        name: 'James Blunt',
+        email: 'james@familyguardian.com',
+        department: 'Operations',
+        role: 'initiator',
         avatar:
           'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
       };
 
-      setUser(userData);
+      setUser(initiatorData);
       setIsAuthenticated(true);
 
       if (remember) {
-        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('user', JSON.stringify(initiatorData));
       }
-
       return true;
     }
+    
     return false;
   };
 

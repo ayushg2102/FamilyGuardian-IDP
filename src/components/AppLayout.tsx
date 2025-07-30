@@ -57,6 +57,16 @@ const AppLayout: React.FC = () => {
         navigate('/dashboard');
       },
     },
+    // Only show admin dashboard for admin users
+    ...(user?.role === 'admin' ? [{
+      key: 'admin-dashboard',
+      icon: <DashboardOutlined />,
+      label: 'Admin Dashboard',
+      onClick: () => {
+        setDrawerOpen(false);
+        navigate('/admin-dashboard');
+      },
+    }] : []),
     {
       key: 'requests',
       icon: <UnorderedListOutlined />,
