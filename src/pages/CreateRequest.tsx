@@ -37,6 +37,7 @@ const CreateRequest: React.FC = () => {
   const [paymentType, setPaymentType] = useState('');
   const [entity, setEntity] = useState('FGI - Family Guardian Insurance');
   const [vatStatus, setVatStatus] = useState('');
+  const [vendorsList, setVendorsList] = useState<any>(null);
   const navigate = useNavigate();
 
   // Static mapping for bank accounts per entity
@@ -51,6 +52,28 @@ const CreateRequest: React.FC = () => {
   };
 
   const handlePaymentTypeChange = (value: string) => {
+    // Get current vendors before changing the payment type
+    const currentVendors = form.getFieldValue('vendors') || [];
+    
+    // If changing to a payment type that's not Credit Card or Staff Reimbursement
+    if (value !== 'Credit Card' && value !== 'Staff Reimbursement' && currentVendors.length > 1) {
+      // Keep only the first vendor
+      const firstVendor = currentVendors[0];
+      
+      // Update the form values to keep only the first vendor
+      form.setFieldsValue({
+        vendors: [firstVendor]
+      });
+      
+      // If we have the vendors list instance, remove extra vendors
+      if (vendorsList && vendorsList.remove) {
+        for (let i = currentVendors.length - 1; i > 0; i--) {
+          vendorsList.remove(i);
+        }
+      }
+    }
+    
+    // Update the payment type state
     setPaymentType(value);
   };
 
@@ -192,6 +215,7 @@ const CreateRequest: React.FC = () => {
                   paymentMode: 'Wire',
                   paymentType: 'Select payment type',
                 }}
+                component={false}
               >
                 <Title
                   level={3}
@@ -423,7 +447,12 @@ const CreateRequest: React.FC = () => {
                   </Title>
 
                   <Form.List name="vendors">
-                    {(fields, { add, remove }) => (
+                    {(fields, { add, remove }) => {
+                      // Store the remove function for use in handlePaymentTypeChange
+                      if (!vendorsList) {
+                        setVendorsList({ remove });
+                      }
+                      return (
                       <>
                         {fields.map(({ key, name, ...restField }) => (
                           <div
@@ -784,7 +813,7 @@ const CreateRequest: React.FC = () => {
                           </Form.Item>
                         ) : null}
                       </>
-                    )}
+                    )}}
                   </Form.List>
                 </Card>
 

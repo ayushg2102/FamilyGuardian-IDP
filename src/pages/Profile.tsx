@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Row,
   Col,
@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { profileData } from '../mock/mockData';
+import { useChangePassword } from '../hooks/useChangePassword';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -34,6 +35,8 @@ const Profile: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [passwordForm] = Form.useForm();
+  const { changePassword, isLoading, error } = useChangePassword();
 
   // Store original data for cancel
   const [originalProfile, setOriginalProfile] = useState({
@@ -93,6 +96,34 @@ const Profile: React.FC = () => {
     setDirty(true);
   };
 
+  const handlePasswordChange = async () => {
+    console.log("handlePasswordChange",passwordForm.getFieldsValue())
+    try {
+      const values = passwordForm.getFieldsValue();
+      // console.log(values,"values")
+      // if (values.newPassword !== values.confirmPassword) {
+      //   message.error('New password and confirm password do not match');
+      //   return;
+      // }
+
+      await changePassword({
+        old_password: values.oldPassword,
+        new_password: values.newPassword,
+        confirm_password: values.confirmPassword,
+      });
+      
+      message.success('Password updated successfully!');
+      passwordForm.resetFields();
+    } catch (error: any) {
+      // Error is already handled by the useChangePassword hook
+      if (error?.errorFields) {
+        // Form validation error
+        return;
+      }
+      console.error('Error changing password:', error);
+    }
+  };
+
   const handleSave = () => {
     // Save current form and avatar as original
     const values = form.getFieldsValue();
@@ -108,6 +139,7 @@ const Profile: React.FC = () => {
     message.success('Changes saved!');
     setDirty(false);
   };
+
 
   const handleCancel = () => {
     // Restore previous data
@@ -175,7 +207,7 @@ const Profile: React.FC = () => {
                 </Col>
                 <Col xs={24} md={12}>
                   <Form.Item label="User Name" name="userName">
-                    <Input disabled placeholder="User Name" />
+                    <Input placeholder="User Name" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -336,10 +368,8 @@ const Profile: React.FC = () => {
            <Card styles={{ body: { padding: 24 } }} style={{ borderRadius: 12, minHeight: 400 }}>
   <Title level={5} style={{ marginBottom: 24 }}>Change Password</Title>
   <Form
+    form={passwordForm}
     layout="vertical"
-    onFinish={values => {
-      message.success('Password updated successfully!');
-    }}
     style={{ maxWidth: 400 }}
     requiredMark={false}
   >
@@ -361,7 +391,7 @@ const Profile: React.FC = () => {
         { required: true, message: 'Enter new password' },
         { min: 6, message: 'Password must be at least 6 characters' }
       ]}
-      hasFeedback
+      // hasFeedback
     >
       <Input.Password
         placeholder="Enter new Password"
@@ -373,7 +403,7 @@ const Profile: React.FC = () => {
       label="Confirm New Password"
       name="confirmPassword"
       dependencies={["newPassword"]}
-      hasFeedback
+      // hasFeedback
       rules={[
         { required: true, message: 'Confirm your new password' },
         ({ getFieldValue }) => ({
@@ -381,7 +411,7 @@ const Profile: React.FC = () => {
             if (!value || form.getFieldValue('newPassword') === value) {
               return Promise.resolve();
             }
-            return Promise.reject(new Error('Passwords do not match'));
+            // return Promise.reject(new Error('Passwords do not match'));
           },
         }),
       ]}
@@ -392,24 +422,15 @@ const Profile: React.FC = () => {
         // iconRender={visible => visible ? <span role="img" aria-label="eye">👁️</span> : <span role="img" aria-label="eye-off">🙈</span>}
       />
     </Form.Item>
-    <Form.Item shouldUpdate>
-      {() => {
-        const isValid =
-          !!form.getFieldValue('oldPassword') &&
-          !!form.getFieldValue('newPassword') &&
-          !!form.getFieldValue('confirmPassword') &&
-          !form.getFieldsError().some(({ errors }) => errors.length);
-        return (
-          <Button
-            type="primary"
-            htmlType="submit"
-            style={{ width: 160, marginTop: 8 }}
-            disabled={!isValid}
-          >
-            Update Password
-          </Button>
-        );
-      }}
+    <Form.Item>
+      <Button
+        type="primary"
+        onClick={handlePasswordChange}
+        loading={isLoading}
+        style={{ marginTop: 8, width: 200 }}
+      >
+        Update Password
+      </Button>
     </Form.Item>
   </Form>
 </Card>

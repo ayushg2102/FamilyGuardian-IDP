@@ -1,45 +1,41 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Typography, message } from 'antd';
+import React from 'react';
+import { Form, Input, Button, Typography, message, Card } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { apiRequest } from '../utils/api';
 import fgpLogo from '../../assets/images/fgp_logo.svg';
+import { useSetPassword } from '../hooks/useSetPassword';
 
 const { Title, Text } = Typography;
 
 const SetPassword: React.FC = () => {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { setPassword, isLoading, error } = useSetPassword();
 
   // Extract userId and token from query params
   const userId = searchParams.get('userId') || '';
-  const token = searchParams.get('token') || 'potato'; // fallback to 'potato' if not present
+  const token = searchParams.get('token') || '';
 
   const onFinish = async (values: { password: string; confirmPassword: string }) => {
-    setLoading(true);
+    // if (!userId || !token) {
+    //   message.error('Invalid reset link. Please request a new one.');
+    //   return;
+    // }
+
     try {
-      // API endpoint and payload (adjust as needed)
-      const payload = {
+      await setPassword({
         userId,
         token,
         password: values.password,
         confirmPassword: values.confirmPassword,
-      };
-      const result = await apiRequest('/api/set-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
       });
-      if (result) {
-        message.success('Password set successfully! Please login.');
-        navigate('/login');
-      }
-    } catch {
-      message.error('Failed to set password.');
-    } finally {
-      setLoading(false);
+      
+      message.success('Password set successfully! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (err) {
+      console.error('Error setting password:', err);
+      // Error is already handled in the hook
     }
   };
 
@@ -48,102 +44,91 @@ const SetPassword: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--background-grey)',
-        padding: '20px',
-      }}
-    >
-      <div
-        style={{
-          width: '400px',
-          textAlign: 'center',
-        }}
-      >
-        {/* Logo Section */}
-        <div style={{ marginBottom: '60px' }}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              marginBottom: '40px',
-            }}
-          >
-            <img
-              src={fgpLogo}
-              alt="FGP Logo"
-              style={{ width: '220px', height: 'auto', marginBottom: '8px' }}
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--background-grey)',
+      padding: '20px'
+    }}>
+      <Card style={{
+        width: '100%',
+        maxWidth: 500,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        border: 'none',
+        borderRadius: 8
+      }}>
+        <div style={{ 
+          textAlign: 'center', 
+          marginBottom: 24,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center',
+            width: '100%',
+            marginBottom: 16
+          }}>
+            <img 
+              src={fgpLogo} 
+              alt="FGP Logo" 
+              style={{ 
+                height: 60,
+                width: 'auto',
+                maxWidth: '100%',
+                objectFit: 'contain'
+              }} 
             />
           </div>
+          <Title level={3} style={{ marginBottom: 8, width: '100%' }}>Set New Password</Title>
+          <Text type="secondary" style={{ width: '100%' }}>Please enter your new password below</Text>
+          
+          {error && (
+            <div style={{ marginTop: 16, width: '100%' }}>
+              <Text type="danger">{error}</Text>
+            </div>
+          )}
         </div>
-        {/* Header */}
-        <div style={{ marginBottom: '40px' }}>
-          <Title
-            level={2}
-            style={{
-              color: 'var(--text-main)',
-              marginBottom: '12px',
-              fontWeight: '400',
-              fontSize: '32px',
-            }}
-          >
-            Set New Password
-          </Title>
-          <Text
-            style={{
-              color: 'var(--text-placeholder)',
-              fontSize: '14px',
-            }}
-          >
-            Please enter your new password below.
-          </Text>
-        </div>
-        <Form form={form} layout="vertical" onFinish={onFinish} style={{ textAlign: 'left' }}>
+
+        <Form 
+          form={form} 
+          layout="vertical" 
+          onFinish={onFinish}
+        >
           <Form.Item
-            label={
-              <Text style={{ fontSize: 14, color: 'var(--text-main)', fontWeight: 500 }}>
-                New Password
-              </Text>
-            }
             name="password"
+            label="New Password"
             rules={[
-              { required: true, message: 'Please enter your new password!' },
-              { min: 8, message: 'Password must be at least 8 characters.' },
+              { required: true, message: 'Please enter your new password' },
+              { min: 8, message: 'Password must be at least 8 characters' },
             ]}
-            style={{ marginBottom: 32 }}
+            style={{ marginBottom: 24 }}
           >
             <Input.Password
               placeholder="Enter new password"
+              size="large"
               style={{
-                height: 48,
                 borderRadius: 4,
-                fontSize: 14,
-                border: '1px solid var(--border-input)',
-                background: 'var(--background-light)',
+                height: 44
               }}
             />
           </Form.Item>
+
           <Form.Item
-            label={
-              <Text style={{ fontSize: 14, color: 'var(--text-main)', fontWeight: 500 }}>
-                Confirm Password
-              </Text>
-            }
             name="confirmPassword"
+            label="Confirm New Password"
             dependencies={['password']}
             rules={[
-              { required: true, message: 'Please confirm your new password!' },
+              { required: true, message: 'Please confirm your password' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('Passwords do not match!'));
+                  return Promise.reject(new Error('The two passwords do not match'));
                 },
               }),
             ]}
@@ -151,50 +136,52 @@ const SetPassword: React.FC = () => {
           >
             <Input.Password
               placeholder="Confirm new password"
+              size="large"
               style={{
-                height: 48,
                 borderRadius: 4,
-                fontSize: 14,
-                border: '1px solid var(--border-input)',
-                background: 'var(--background-light)',
+                height: 44
               }}
             />
           </Form.Item>
-          <Form.Item style={{ marginBottom: 24 }}>
+
+          <Form.Item style={{ marginBottom: 16 }}>
             <Button
               type="primary"
               htmlType="submit"
-              loading={loading}
+              loading={isLoading}
+              block
+              size="large"
               style={{
-                width: '100%',
-                height: 48,
-                background: '#009688',
-                border: 'none',
-                borderRadius: 4,
+                height: 44,
                 fontSize: 16,
                 fontWeight: 500,
+                background: '#009688',
+                border: 'none',
+                borderRadius: 4
               }}
             >
-              {loading ? 'Setting...' : 'Set Password'}
+              {isLoading ? 'Setting Password...' : 'Set Password'}
             </Button>
           </Form.Item>
+
           <div style={{ textAlign: 'center' }}>
             <Button
               type="link"
               onClick={handleBackToLogin}
               style={{
                 color: '#666',
-                fontSize: '14px',
-                padding: '0',
-                textDecoration: 'underline',
+                fontSize: 14,
+                padding: '4px 0',
+                height: 'auto',
+                textDecoration: 'underline'
               }}
             >
-              <ArrowLeftOutlined style={{ marginRight: '8px' }} />
+              <ArrowLeftOutlined style={{ marginRight: 8 }} />
               Back to Login
             </Button>
           </div>
         </Form>
-      </div>
+      </Card>
     </div>
   );
 };

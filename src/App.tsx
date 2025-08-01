@@ -14,7 +14,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import 'antd/dist/reset.css'; // AntD v5+ global styles
 import SetPassword from './pages/SetPassword';
-import ChangePassword from './pages/ChangePassword';
 import { adminRoutes } from './routes/adminRoutes';
 
 const theme = {
@@ -30,9 +29,9 @@ const theme = {
 function App() {
   return (
     <ConfigProvider theme={theme}>
-      <AuthProvider>
-        <ErrorBoundary>
-          <Router>
+      <Router>
+        <AuthProvider>
+          <ErrorBoundary>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -68,12 +67,11 @@ function App() {
                 <Route path="/requests/:id" element={<RequestDetail />} />
                 <Route path="/create-request" element={<CreateRequest />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/change-password" element={<ChangePassword />} />
               </Route>
             </Routes>
-          </Router>
-        </ErrorBoundary>
-      </AuthProvider>
+          </ErrorBoundary>
+        </AuthProvider>
+      </Router>
     </ConfigProvider>
   );
 }
