@@ -229,36 +229,52 @@ const CreateRequest: React.FC = () => {
                   Payment Request Details
                 </Title>
 
-                <Row gutter={[24, 16]}>
+                <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                   <Col xs={24} sm={8}>
+                    <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Date</label>
+                    </div>
                     <Form.Item
-                      label="Date"
                       name="date"
                       rules={[{ required: true, message: 'Please select date!' }]}
+                      style={{ marginBottom: 0 }}
                     >
                       <DatePicker className={styles.formDatePicker} style={{ width: '100%' }} />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={8}>
-                    <Form.Item label="Department" name="department">
+                    <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Department</label>
+                    </div>
+                    <Form.Item name="department" style={{ marginBottom: 0 }}>
                       <Input className={styles.formInput} disabled />
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={8}>
-                    <Form.Item label="Division" name="division">
+                    <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Division</label>
+                    </div>
+                    <Form.Item name="division" style={{ marginBottom: 0 }}>
                       <Input className={styles.formInput} disabled />
                     </Form.Item>
                   </Col>
                 </Row>
 
-                <Row gutter={[24, 16]}>
+                <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                   <Col xs={24} sm={8}>
+                    <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Department Head</label>
+                    </div>
                     <Form.Item
-                      label="Department Head"
                       name="departmentHead"
                       rules={[{ required: true, message: 'Please select department head!' }]}
+                      style={{ marginBottom: 0 }}
                     >
-                      <Select className={styles.formSelect} style={{ border: '1px solid #A4A7AE' }}>
+                      <Select 
+                        className={styles.formSelect} 
+                        style={{ width: '100%', border: '1px solid #A4A7AE' }}
+                        placeholder="Select Department Head"
+                      >
                         <Option value="Cooper Lustin">Cooper Lustin</Option>
                         <Option value="John Smith">John Smith</Option>
                         <Option value="Sarah Johnson">Sarah Johnson</Option>
@@ -266,16 +282,20 @@ const CreateRequest: React.FC = () => {
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={8}>
+                    <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payment Mode</label>
+                    </div>
                     <Form.Item
-                      label="Payment Mode"
                       name="paymentMode"
                       rules={[{ required: true, message: 'Please select payment mode!' }]}
+                      style={{ marginBottom: 0 }}
                     >
                       <Select
                         onChange={handlePaymentModeChange}
                         value={paymentMode}
                         className={styles.formSelect}
-                        style={{ border: '1px solid #A4A7AE' }}
+                        style={{ width: '100%', border: '1px solid #A4A7AE' }}
+                        placeholder="Select Payment Mode"
                       >
                         <Option value="Cheque">Cheque</Option>
                         <Option value="Wire">Wire</Option>
@@ -284,25 +304,36 @@ const CreateRequest: React.FC = () => {
                   </Col>
                   {paymentMode === 'Cheque' ? (
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Name</label>
+                      </div>
                       <Form.Item
-                        label="Payee Name"
                         name="chequePayeeName"
                         rules={[{ required: true, message: 'Please enter payee name!' }]}
+                        style={{ marginBottom: 0 }}
                       >
-                        <Input className={styles.formInput} />
+                        <Input 
+                          className={styles.formInput} 
+                          placeholder="Enter Payee Name"
+                          style={{ width: '100%' }}
+                        />
                       </Form.Item>
                     </Col>
                   ) : (
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payment Type</label>
+                      </div>
                       <Form.Item
-                        label="Payment Type"
                         name="paymentType"
                         rules={[{ required: true, message: 'Please select payment type!' }]}
+                        style={{ marginBottom: 0 }}
                       >
                         <Select
                           onChange={handlePaymentTypeChange}
                           className={styles.formSelect}
-                          style={{ border: '1px solid #A4A7AE' }}
+                          style={{ width: '100%', border: '1px solid #A4A7AE' }}
+                          placeholder="Select Payment Type"
                         >
                           <Option value="Benefit Payments">Benefit Payments</Option>
                           <Option value="Credit Card">Credit Card</Option>
@@ -318,18 +349,22 @@ const CreateRequest: React.FC = () => {
                 </Row>
 
                 {paymentMode === 'Cheque' ? (
-                  <Row gutter={[24, 16]}>
+                  <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Entity</label>
+                      </div>
                       <Form.Item
-                        label="Entity"
                         name="entity"
                         rules={[{ required: true, message: 'Please select entity!' }]}
+                        style={{ marginBottom: 0 }}
                       >
                         <Select
                           className={styles.formSelect}
-                          style={{ border: '1px solid #A4A7AE' }}
+                          style={{ width: '100%', border: '1px solid #A4A7AE' }}
                           onChange={handleEntityChange}
                           value={entity}
+                          placeholder="Select Entity"
                         >
                           <Option value="FGI - Family Guardian Insurance">
                             FGI - Family Guardian Insurance
@@ -345,17 +380,20 @@ const CreateRequest: React.FC = () => {
                     </Col>
                   </Row>
                 ) : (
-                  <Row gutter={[24, 16]}>
+                  <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Bank Account</label>
+                      </div>
                       <Form.Item
-                        label="Bank Account"
                         name="creditCardBankAccount"
                         rules={[{ required: true, message: 'Please select bank account!' }]}
+                        style={{ marginBottom: 0 }}
                       >
                         <Select
                           className={styles.formSelect}
                           placeholder="Select Bank Account"
-                          style={{ border: '1px solid #A4A7AE' }}
+                          style={{ width: '100%', border: '1px solid #A4A7AE' }}
                         >
                           {(bankAccountsByEntity[entity] || []).map((acc) => (
                             <Option key={acc} value={acc}>
@@ -366,16 +404,20 @@ const CreateRequest: React.FC = () => {
                       </Form.Item>
                     </Col>
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>VAT Status</label>
+                      </div>
                       <Form.Item
-                        label="VAT Status"
                         name="creditCardVatStatus"
                         rules={[{ required: true, message: 'Please select VAT status!' }]}
+                        style={{ marginBottom: 0 }}
                       >
                         <Select
                           onChange={handleVatStatusChange}
                           value={vatStatus}
                           placeholder="Select VAT Status"
                           className={styles.formSelect}
+                          style={{ width: '100%' }}
                         >
                           <Option value="Vatable">Vatable</Option>
                           <Option value="Non-Vatable">Non-Vatable</Option>
@@ -383,48 +425,62 @@ const CreateRequest: React.FC = () => {
                       </Form.Item>
                     </Col>
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>TIN Number</label>
+                      </div>
                       <Form.Item
-                        label="TIN Number"
                         name="creditCardTinNumber"
                         rules={[
                           vatStatus === 'Vatable'
                             ? { required: true, message: 'Please enter TIN number!' }
                             : {},
                         ]}
+                        style={{ marginBottom: 0 }}
                       >
                         <Input
                           placeholder="Enter TIN Number"
                           className={styles.formInput}
                           disabled={vatStatus !== 'Vatable'}
+                          style={{ width: '100%' }}
                         />
                       </Form.Item>
                     </Col>
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Invoice Date</label>
+                      </div>
                       <Form.Item
-                        label="Invoice Date"
                         name="creditCardInvoiceDate"
                         rules={[{ required: true, message: 'Please select invoice date!' }]}
+                        style={{ marginBottom: 0 }}
                       >
                         <DatePicker className={styles.formDatePicker} style={{ width: '100%' }} />
                       </Form.Item>
                     </Col>
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Invoice #</label>
+                      </div>
                       <Form.Item
-                        label="Invoice #"
                         name="creditCardInvoiceNumber"
                         rules={[{ required: true, message: 'Please enter invoice number!' }]}
+                        style={{ marginBottom: 0 }}
                       >
-                        <Input placeholder="Enter Invoice Number" className={styles.formInput} />
+                        <Input placeholder="Enter Invoice Number" className={styles.formInput} style={{ width: '100%' }} />
                       </Form.Item>
                     </Col>
                     <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Currency</label>
+                      </div>
                       <Form.Item
-                        label="Currency"
                         name="creditCardCurrency"
                         rules={[{ required: true, message: 'Please select currency!' }]}
+                        style={{ marginBottom: 0 }}
                       >
                         <Select
                           className={styles.formSelect}
+                          style={{ width: '100%', border: '1px solid #A4A7AE' }}
                           placeholder="Select Currency"
                         >
                           <Option value="BSD">BSD</Option>
@@ -497,47 +553,59 @@ const CreateRequest: React.FC = () => {
 
                             <Row gutter={[16, 16]}>
                               <Col xs={24} sm={8}>
+                                <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Name</label>
+                                </div>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'payeeName']}
-                                  label="Payee Name"
                                   rules={[{ required: true, message: 'Please enter payee name!' }]}
+                                  style={{ marginBottom: 16 }}
                                 >
                                   <Input
                                     className={styles.formInput}
                                     placeholder="Enter payee name"
+                                    style={{ width: '100%' }}
                                   />
                                 </Form.Item>
                               </Col>
                               <Col xs={24} sm={8}>
+                                <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Account Holder Name</label>
+                                </div>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'accountHolderName']}
-                                  label="Account Holder Name"
                                   rules={[
                                     {
                                       required: true,
                                       message: 'Please enter account holder name!',
                                     },
                                   ]}
+                                  style={{ marginBottom: 16 }}
                                 >
                                   <Input
                                     className={styles.formInput}
                                     placeholder="Enter account holder name"
+                                    style={{ width: '100%' }}
                                   />
                                 </Form.Item>
                               </Col>
                               <Col xs={24} sm={8}>
+                                <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Bank Account</label>
+                                </div>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'payeeBankAccount']}
-                                  label="Payee Bank Account"
                                   rules={[
                                     { required: true, message: 'Please select bank account!' },
                                   ]}
+                                  style={{ marginBottom: 16 }}
                                 >
                                   <Select
                                     className={styles.formSelect}
+                                    style={{ width: '100%', border: '1px solid #A4A7AE' }}
                                     placeholder="Select bank account"
                                   >
                                     {(bankAccountsByEntity[entity] || []).map((acc) => (
@@ -549,59 +617,72 @@ const CreateRequest: React.FC = () => {
                                 </Form.Item>
                               </Col>
                               <Col xs={24} sm={8}>
+                                <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Bank Account Number</label>
+                                </div>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'payeeBankAccountNumber']}
-                                  label="Payee Bank Account Number"
                                   rules={[
                                     { required: true, message: 'Please enter account number!' },
                                   ]}
+                                  style={{ marginBottom: 16 }}
                                 >
                                   <Input
                                     className={styles.formInput}
-                                    placeholder="Enter account holder name"
+                                    placeholder="Enter account number"
+                                    style={{ width: '100%' }}
                                   />
                                 </Form.Item>
                               </Col>
                               <Col xs={24} sm={8}>
+                                <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Bank Location</label>
+                                </div>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'bankLocation']}
-                                  label="Bank Location"
                                   rules={[{ required: true, message: 'Please select location!' }]}
+                                  style={{ marginBottom: 16 }}
                                 >
                                   <Select
                                     className={styles.formSelect}
+                                    style={{ width: '100%', border: '1px solid #A4A7AE' }}
                                     placeholder="Select Location"
                                   >
                                     <Option value="Nassau">Nassau</Option>
                                     <Option value="Freeport">Freeport</Option>
                                     <Option value="Abaco">Abaco</Option>
                                     <Option value="Exuma">Exuma</Option>
-                                    {/* Add more locations as needed */}
                                   </Select>
                                 </Form.Item>
                               </Col>
                               <Col xs={24} sm={8}>
+                                <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Transit #</label>
+                                </div>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'transitNumber']}
-                                  label="Transit #"
                                   rules={[
                                     { required: true, message: 'Please enter transit number!' },
                                   ]}
+                                  style={{ marginBottom: 16 }}
                                 >
                                   <Input
                                     className={styles.formInput}
-                                    placeholder="Enter Transit"
+                                    placeholder="Enter Transit #"
+                                    style={{ width: '100%' }}
                                   />
                                 </Form.Item>
                               </Col>
                               <Col xs={24} sm={8}>
+                                <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Swift Code</label>
+                                </div>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'swiftCode']}
-                                  label="Swift Code"
                                   rules={[
                                     ({ getFieldValue }) => ({
                                       validator(_, value) {
@@ -618,10 +699,12 @@ const CreateRequest: React.FC = () => {
                                       },
                                     }),
                                   ]}
+                                  style={{ marginBottom: 16 }}
                                 >
                                   <Input
                                     className={styles.formInput}
                                     placeholder="Enter only if payment is not BSD"
+                                    style={{ width: '100%' }}
                                   />
                                 </Form.Item>
                               </Col>
@@ -652,14 +735,17 @@ const CreateRequest: React.FC = () => {
                                           <Form.Item
                                             {...glRestField}
                                             name={[glName, 'account']}
-                                            label="GL Account"
                                             rules={[{ required: true, message: 'Required' }]}
+                                            style={{ marginBottom: 16 }}
                                           >
+                                            <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Account</label>
+                                            </div>
                                             <Select
                                               className={styles.formSelect}
+                                              style={{ width: '100%', border: '1px solid #A4A7AE' }}
                                               placeholder="Select GL account"
                                             >
-                                              {/* TODO: Populate with real GL accounts */}
                                               <Option value="1000">1000 - Cash</Option>
                                               <Option value="2000">2000 - Receivables</Option>
                                             </Select>
@@ -669,11 +755,15 @@ const CreateRequest: React.FC = () => {
                                           <Form.Item
                                             {...glRestField}
                                             name={[glName, 'amount']}
-                                            label="Amount"
                                             rules={[{ required: true, message: 'Required' }]}
+                                            style={{ marginBottom: 16 }}
                                           >
+                                            <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Amount</label>
+                                            </div>
                                             <Input
                                               className={styles.formInput}
+                                              style={{ width: '100%' }}
                                               placeholder="Please enter amount"
                                             />
                                           </Form.Item>
@@ -684,11 +774,15 @@ const CreateRequest: React.FC = () => {
                                           <Form.Item
                                             {...glRestField}
                                             name={[glName, 'description']}
-                                            label="GL Description"
                                             rules={[{ required: true, message: 'Required' }]}
+                                            style={{ marginBottom: 16 }}
                                           >
+                                            <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Description</label>
+                                            </div>
                                             <Input.TextArea
                                               className={styles.formTextArea}
+                                              style={{ width: '100%' }}
                                               rows={4}
                                               placeholder="Enter Description for GL Entry"
                                             />
@@ -697,14 +791,8 @@ const CreateRequest: React.FC = () => {
                                       </Row>
                                       {/* GL Entry Documents Section */}
                                       <div style={{ marginBottom: 24 }}>
-                                        <div
-                                          style={{
-                                            fontWeight: 600,
-                                            fontSize: 16,
-                                            marginBottom: 8,
-                                          }}
-                                        >
-                                          GL Entry Documents
+                                        <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                          <label style={{ fontWeight: 500, color: '#1A1A1A', fontSize: '16px' }}>GL Entry Documents</label>
                                         </div>
                                         <Form.Item
                                           {...glRestField}
@@ -713,6 +801,7 @@ const CreateRequest: React.FC = () => {
                                           getValueFromEvent={(e) =>
                                             Array.isArray(e) ? e : e && e.fileList
                                           }
+                                          style={{ marginBottom: 16 }}
                                         >
                                           <Upload.Dragger
                                             {...uploadProps}
@@ -724,41 +813,39 @@ const CreateRequest: React.FC = () => {
                                               border: '1px dashed #d9d9d9',
                                               borderRadius: 8,
                                               padding: 24,
+                                              width: '100%',
                                             }}
-                                            accept=".pdf,.doc,.docx,.xls,.jpg,.jpeg,.png,.csv"
+                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.csv"
                                           >
-                                            <p
-                                              className="ant-upload-drag-icon"
-                                              style={{ marginBottom: 8 }}
-                                            >
-                                              <UploadOutlined
-                                                style={{ fontSize: 40, color: '#009688' }}
-                                              />
+                                            <p className="ant-upload-drag-icon" style={{ marginBottom: 8 }}>
+                                              <UploadOutlined style={{ fontSize: 40, color: '#009688' }} />
                                             </p>
-                                            <p
-                                              style={{
-                                                fontWeight: 500,
-                                                fontSize: 16,
-                                                marginBottom: 0,
-                                              }}
-                                            >
-                                              Click to upload or drag and drop the files
+                                            <p style={{
+                                              fontWeight: 500,
+                                              fontSize: '14px',
+                                              marginBottom: '4px',
+                                              color: '#1A1A1A'
+                                            }}>
+                                              Click to upload or drag and drop files here
                                             </p>
-                                            <p
-                                              style={{
-                                                color: '#888',
-                                                fontSize: 13,
-                                                marginBottom: 0,
-                                              }}
-                                            >
-                                              Supported formats: pdf, .doc, .docx, .xls, .jpg,
-                                              .jpeg, .png, .csv
+                                            <p style={{
+                                              color: '#666',
+                                              fontSize: '13px',
+                                              marginBottom: 0,
+                                              lineHeight: '1.4'
+                                            }}>
+                                              Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, CSV
                                               <br />
-                                              Maximum 3 files, upto 10 mb each
+                                              Maximum 3 files, up to 10 MB each
                                             </p>
                                             <Button
+                                              type="primary"
                                               icon={<UploadOutlined />}
-                                              style={{ marginTop: '16px' }}
+                                              style={{
+                                                marginTop: '16px',
+                                                backgroundColor: '#009688',
+                                                borderColor: '#009688'
+                                              }}
                                             >
                                               Browse Files
                                             </Button>
