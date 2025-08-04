@@ -1,46 +1,28 @@
-import React, { useState } from 'react';
-import {
-  Form,
-  Input,
-  Select,
-  DatePicker,
-  Button,
-  Card,
-  Typography,
-  Row,
-  Col,
-  Upload,
-  message,
-  Tabs,
-} from 'antd';
-import {
-  PlusOutlined,
-  MinusCircleOutlined,
-  UploadOutlined,
-  DeleteOutlined,
-} from '@ant-design/icons';
+import { FC, useState } from 'react';
+import { Form, Input, Select, message, Button, Card, Row, Col, DatePicker, Tabs, Typography, Upload } from 'antd';
+import { usePaymentRequest } from '../hooks/usePaymentRequest';
 import { useNavigate } from 'react-router-dom';
+import { PlusOutlined, MinusCircleOutlined, UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import styles from './CreateRequest.module.css';
 import topRight from '../../assets/images/top_right.svg';
 import bottomLeft from '../../assets/images/bottom_left.svg';
 
-const { Title } = Typography;
 const { Option } = Select;
 const { TabPane } = Tabs;
+const { Title } = Typography;
 
-const breadcrumbGreen = '#009966'; // Use your theme green if available
+const breadcrumbGreen = '#009966';
 
-const CreateRequest: React.FC = () => {
+const CreateRequest: FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const [paymentMode, setPaymentMode] = useState('');
   const [paymentType, setPaymentType] = useState('');
   const [entity, setEntity] = useState('FGI - Family Guardian Insurance');
   const [vatStatus, setVatStatus] = useState('');
   const [vendorsList, setVendorsList] = useState<any>(null);
-  const navigate = useNavigate();
 
-  // Static mapping for bank accounts per entity
   const bankAccountsByEntity: Record<string, string[]> = {
     'FGI - Family Guardian Insurance': ['HSBC - 123456789', 'CIBC - 987654321'],
     'FGC - Family Guardian Claims': ['RBC - 111222333', 'Scotiabank - 444555666'],
@@ -52,28 +34,22 @@ const CreateRequest: React.FC = () => {
   };
 
   const handlePaymentTypeChange = (value: string) => {
-    // Get current vendors before changing the payment type
     const currentVendors = form.getFieldValue('vendors') || [];
     
-    // If changing to a payment type that's not Credit Card or Staff Reimbursement
     if (value !== 'Credit Card' && value !== 'Staff Reimbursement' && currentVendors.length > 1) {
-      // Keep only the first vendor
       const firstVendor = currentVendors[0];
       
-      // Update the form values to keep only the first vendor
       form.setFieldsValue({
         vendors: [firstVendor]
       });
       
-      // If we have the vendors list instance, remove extra vendors
-      if (vendorsList && vendorsList.remove) {
+      if (vendorsList?.remove) {
         for (let i = currentVendors.length - 1; i > 0; i--) {
           vendorsList.remove(i);
         }
       }
     }
     
-    // Update the payment type state
     setPaymentType(value);
   };
 
@@ -85,10 +61,35 @@ const CreateRequest: React.FC = () => {
     setVatStatus(value);
   };
 
-  const onFinish = (values: unknown) => {
-    console.log('Form values:', values);
-    message.success('Request submitted successfully!');
-    navigate('/requests');
+  const { submitPaymentRequest } = usePaymentRequest();
+
+  const handleFormSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault?.(); // Prevent default form submission if event exists
+    try {
+      // Get all form values
+      const values = await form.validateFields();
+      console.log('Form values:', values);
+      
+      // Submit the form data
+      await submitPaymentRequest(values);
+      return true;
+    } catch (error: any) {
+      console.error('Form submission error:', error);
+      if (error?.errorFields) {
+        // This is a validation error, Ant Design will show the errors
+        console.log('Form validation errors:', error.errorFields);
+      } else {
+        // Show generic error message for other errors
+        message.error('Failed to submit form. Please try again.');
+      }
+      return false;
+    }
+  };
+
+  // onFinish handler for the form
+  const onFinish = async (values: any) => {
+    console.log('onFinish triggered with values:', values);
+    await handleFormSubmit();
   };
 
   const onSaveDraft = () => {
@@ -102,11 +103,11 @@ const CreateRequest: React.FC = () => {
     headers: {
       authorization: 'authorization-text',
     },
-    onChange(info: unknown) {
-      if ((info as any).file.status === 'done') {
-        message.success(`${(info as any).file.name} file uploaded successfully`);
-      } else if ((info as any).file.status === 'error') {
-        message.error(`${(info as any).file.name} file upload failed.`);
+    onChange(info: any) {
+      if (info.file.status === 'done') {
+        message.success(`${info.file.name} file uploaded successfully`);
+      } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
       }
     },
   };
@@ -232,7 +233,7 @@ const CreateRequest: React.FC = () => {
                 <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                   <Col xs={24} sm={8}>
                     <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Date</label>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Date <span style={{ color: 'red' }}>*</span></label>
                     </div>
                     <Form.Item
                       name="date"
@@ -263,7 +264,7 @@ const CreateRequest: React.FC = () => {
                 <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                   <Col xs={24} sm={8}>
                     <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Department Head</label>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Department Head <span style={{ color: 'red' }}>*</span></label>
                     </div>
                     <Form.Item
                       name="departmentHead"
@@ -283,7 +284,7 @@ const CreateRequest: React.FC = () => {
                   </Col>
                   <Col xs={24} sm={8}>
                     <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payment Mode</label>
+                      <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payment Mode <span style={{ color: 'red' }}>*</span></label>
                     </div>
                     <Form.Item
                       name="paymentMode"
@@ -305,7 +306,7 @@ const CreateRequest: React.FC = () => {
                   {paymentMode === 'Cheque' ? (
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Name</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Name <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="chequePayeeName"
@@ -322,7 +323,7 @@ const CreateRequest: React.FC = () => {
                   ) : (
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payment Type</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payment Type <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="paymentType"
@@ -352,7 +353,7 @@ const CreateRequest: React.FC = () => {
                   <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Entity</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Entity <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="entity"
@@ -383,7 +384,7 @@ const CreateRequest: React.FC = () => {
                   <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Bank Account</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Bank Account <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="creditCardBankAccount"
@@ -405,7 +406,7 @@ const CreateRequest: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>VAT Status</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>VAT Status <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="creditCardVatStatus"
@@ -426,7 +427,7 @@ const CreateRequest: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>TIN Number</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>TIN Number {vatStatus === 'Vatable' && <span style={{ color: 'red' }}>*</span>}</label>
                       </div>
                       <Form.Item
                         name="creditCardTinNumber"
@@ -447,7 +448,7 @@ const CreateRequest: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Invoice Date</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Invoice Date <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="creditCardInvoiceDate"
@@ -459,7 +460,7 @@ const CreateRequest: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Invoice #</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Invoice # <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="creditCardInvoiceNumber"
@@ -471,7 +472,7 @@ const CreateRequest: React.FC = () => {
                     </Col>
                     <Col xs={24} sm={8}>
                       <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Currency</label>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Currency <span style={{ color: 'red' }}>*</span></label>
                       </div>
                       <Form.Item
                         name="creditCardCurrency"
@@ -554,7 +555,7 @@ const CreateRequest: React.FC = () => {
                             <Row gutter={[16, 16]}>
                               <Col xs={24} sm={8}>
                                 <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Name</label>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Name <span style={{ color: 'red' }}>*</span></label>
                                 </div>
                                 <Form.Item
                                   {...restField}
@@ -571,7 +572,7 @@ const CreateRequest: React.FC = () => {
                               </Col>
                               <Col xs={24} sm={8}>
                                 <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Account Holder Name</label>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Account Holder Name <span style={{ color: 'red' }}>*</span></label>
                                 </div>
                                 <Form.Item
                                   {...restField}
@@ -593,7 +594,7 @@ const CreateRequest: React.FC = () => {
                               </Col>
                               <Col xs={24} sm={8}>
                                 <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Bank Account</label>
+                                  <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Payee Bank Account <span style={{ color: 'red' }}>*</span></label>
                                 </div>
                                 <Form.Item
                                   {...restField}
@@ -914,7 +915,11 @@ const CreateRequest: React.FC = () => {
                 >
                   <Button onClick={() => navigate('/requests')}>Cancel</Button>
                   <Button onClick={onSaveDraft}>Save as Draft</Button>
-                  <Button type="primary" htmlType="submit">
+                  <Button 
+                    type="primary" 
+                    htmlType="submit"
+                    onClick={handleFormSubmit}
+                  >
                     Submit
                   </Button>
                 </div>
