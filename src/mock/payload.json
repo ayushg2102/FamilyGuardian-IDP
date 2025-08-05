@@ -1,19 +1,19 @@
 {
     "Entity": 1,
     "PaymentMode": "Wire",
-    "PaymentType": "select_payment_type",
+    "PaymentType": "capital_purchases",
     "Department": 1,
     "DepartmentHead": 1,
     "Vendors": [
         {
             "PayeeName": "Deepanshu",
-            "AccountHolderName": "Ayush",
+            "AccountHolderName": "Deepanshu",
             "BankAccount": 1,
             "VatStatus": "vatable",
             "TinNumber": "97868",
-            "InvoiceDate": "2025-08-09",
+            "InvoiceDate": "2025-08-19",
             "InvoiceNumber": "1131",
-            "Currency": "USD",
+            "Currency": "BSD",
             "GLEntries": [
                 {
                     "GLAccount": 1,
@@ -24,7 +24,7 @@
             ]
         }
     ],
-    "AccountHolderName": "Ayush",
+    "AccountHolderName": "Deepanshu",
     "PayeeBankAccountNumber": "",
     "BankName": "",
     "BankLocation": "",

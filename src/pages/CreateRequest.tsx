@@ -76,8 +76,31 @@ const CreateRequest: FC = () => {
     } catch (error: any) {
       console.error('Form submission error:', error);
       if (error?.errorFields) {
-        // This is a validation error, Ant Design will show the errors
+        // Log detailed validation errors
         console.log('Form validation errors:', error.errorFields);
+        
+        // Show a more detailed error message
+        const errorMessages = error.errorFields.map((field: any) => {
+          return `${field.errors.join(', ')}`;
+        }).join('\n');
+        
+        message.error({
+          content: `Please fix the following errors:\n${errorMessages}`,
+          duration: 5,
+          style: {
+            whiteSpace: 'pre-line',
+            marginTop: '20px'
+          }
+        });
+        
+        // Scroll to the first error field
+        const firstError = document.querySelector('.ant-form-item-has-error');
+        if (firstError) {
+          firstError.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
       } else {
         // Show generic error message for other errors
         message.error('Failed to submit form. Please try again.');
@@ -733,53 +756,73 @@ const CreateRequest: FC = () => {
                                       </Title>
                                       <Row gutter={[16, 16]}>
                                         <Col xs={24} sm={8}>
+                                          <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                            <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Account <span style={{ color: 'red' }}>*</span></label>
+                                          </div>
                                           <Form.Item
                                             {...glRestField}
                                             name={[glName, 'account']}
-                                            rules={[{ required: true, message: 'Required' }]}
+                                            rules={[{ required: true, message: 'Please select GL account!' }]}
                                             style={{ marginBottom: 16 }}
                                           >
-                                            <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Account</label>
-                                            </div>
                                             <Select
                                               className={styles.formSelect}
                                               style={{ width: '100%', border: '1px solid #A4A7AE' }}
                                               placeholder="Select GL account"
+                                              showSearch
+                                              optionFilterProp="children"
+                                              filterOption={(input, option) =>
+                                                (option?.children ?? '').toString().toLowerCase().includes(input.toLowerCase())
+                                              }
                                             >
                                               <Option value="1000">1000 - Cash</Option>
                                               <Option value="2000">2000 - Receivables</Option>
+                                              <Option value="3000">3000 - Payables</Option>
+                                              <Option value="4000">4000 - Revenue</Option>
+                                              <Option value="5000">5000 - Expenses</Option>
                                             </Select>
                                           </Form.Item>
                                         </Col>
                                         <Col xs={24} sm={8}>
+                                          <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                            <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Amount <span style={{ color: 'red' }}>*</span></label>
+                                          </div>
                                           <Form.Item
                                             {...glRestField}
                                             name={[glName, 'amount']}
-                                            rules={[{ required: true, message: 'Required' }]}
+                                            rules={[
+                                              { required: true, message: 'Please enter amount!' },
+                                              {
+                                                pattern: /^\d+(\.\d{1,2})?$/,
+                                                message: 'Please enter a valid amount (e.g., 100.00)',
+                                              },
+                                            ]}
                                             style={{ marginBottom: 16 }}
                                           >
-                                            <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Amount</label>
-                                            </div>
                                             <Input
                                               className={styles.formInput}
                                               style={{ width: '100%' }}
-                                              placeholder="Please enter amount"
+                                              placeholder="0.00"
+                                              type="number"
+                                              step="0.01"
+                                              min="0"
                                             />
                                           </Form.Item>
                                         </Col>
                                       </Row>
                                       <Row gutter={[16, 16]}>
                                         <Col xs={24}>
+                                          <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                                            <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Description</label>
+                                          </div>
                                           <Form.Item
                                             {...glRestField}
                                             name={[glName, 'description']}
-                                            rules={[{ required: true, message: 'Required' }]}
+                                            rules={[{ required: true, message: 'Please enter description!' }]}
                                             style={{ marginBottom: 16 }}
                                           >
                                             <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Description</label>
+                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Description <span style={{ color: 'red' }}>*</span></label>
                                             </div>
                                             <Input.TextArea
                                               className={styles.formTextArea}
