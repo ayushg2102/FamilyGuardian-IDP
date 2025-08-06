@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
 import { createPaymentRequest, PaymentRequestData } from '../services/paymentService';
+import { handleTokenValidationError } from '../services/authService';
+import { message } from 'antd';
 
 export const usePaymentRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,7 +76,7 @@ export const usePaymentRequest = () => {
           AccountHolderName: vendor.accountHolderName || '',
           BankAccount: 1, // This should be mapped from vendor.payeeBankAccount
           VatStatus: mappedVatStatus,
-          TinNumber: vendor.tinNumber || formValues.creditCardTinNumber || '',
+          TinNumber: vendor.tinNumber || formValues.creditCardTinNumber || '9877',
           InvoiceDate: vendor.invoiceDate ? 
             dayjs(vendor.invoiceDate).format('YYYY-MM-DD') : 
             (formValues.creditCardInvoiceDate ? 
@@ -130,9 +131,17 @@ export const usePaymentRequest = () => {
       return response;
     } catch (error) {
       console.error('Error submitting payment request:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to submit payment request';
-      setError(errorMessage);
-      message.error(errorMessage);
+      
+      // Check if this is a token validation error and handle logout
+      const wasLoggedOut = handleTokenValidationError(error);
+      
+      if (!wasLoggedOut) {
+        // Only show error message if user wasn't logged out
+        const errorMessage = error instanceof Error ? error.message : 'Failed to submit payment request';
+        setError(errorMessage);
+        message.error(errorMessage);
+      }
+      
       throw error;
     } finally {
       setIsSubmitting(false);

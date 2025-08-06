@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
 interface SetPasswordParams {
-  userId: string;
+  uid: string;
   token: string;
   password: string;
   confirmPassword: string;
@@ -14,12 +14,12 @@ export const useSetPassword = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: async ({ userId, token, password, confirmPassword }: SetPasswordParams) => {
-      const response = await axios.post('/auth/reset_password/', {
-        userId,
+    mutationFn: async ({ uid, token, password, confirmPassword }: SetPasswordParams) => {
+      const response = await axios.post('http://172.172.233.44:9000/api/auth/reset_password/', {
+        uid,
         token,
-        password,
-        confirmPassword,
+        old_password: password,
+        new_password: confirmPassword,
       });
       return response.data;
     },

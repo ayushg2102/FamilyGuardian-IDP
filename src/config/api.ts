@@ -10,6 +10,9 @@ export const ENDPOINTS = {
   USERS: {
     GET_USER_BY_ID: `${API_BASE_URL}/users/`,
   },
+  COUNTRY_CODES: {
+    GET_ALL: `${API_BASE_URL}/country-codes/`,
+  },
   PAYMENTS: {
     DASHBOARD_STATS: `${API_BASE_URL}/payment-requests/summary_counts/`,
     PAYMENT_REQUESTS: `${API_BASE_URL}/payment-requests/`,

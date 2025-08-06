@@ -1,6 +1,7 @@
 import { FC, useState } from 'react';
 import { Form, Input, Select, message, Button, Card, Row, Col, DatePicker, Tabs, Typography, Upload } from 'antd';
 import { usePaymentRequest } from '../hooks/usePaymentRequest';
+import { usePaymentRequestChoices } from '../hooks/usePaymentRequestChoices';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined, MinusCircleOutlined, UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -22,12 +23,17 @@ const CreateRequest: FC = () => {
   const [entity, setEntity] = useState('FGI - Family Guardian Insurance');
   const [vatStatus, setVatStatus] = useState('');
   const [vendorsList, setVendorsList] = useState<any>(null);
+  
+  // Fetch payment request choices from API
+  const { choices, isLoading: choicesLoading, error: choicesError } = usePaymentRequestChoices();
 
   const bankAccountsByEntity: Record<string, string[]> = {
     'FGI - Family Guardian Insurance': ['HSBC - 123456789', 'CIBC - 987654321'],
     'FGC - Family Guardian Claims': ['RBC - 111222333', 'Scotiabank - 444555666'],
     'FGG - Family Guardian Group': ['Bank of Bahamas - 777888999', 'Fidelity - 000111222'],
   };
+
+  console.log(choices,"CHOICES123")
 
   const handlePaymentModeChange = (value: string) => {
     setPaymentMode(value);
@@ -320,9 +326,13 @@ const CreateRequest: FC = () => {
                         className={styles.formSelect}
                         style={{ width: '100%', border: '1px solid #A4A7AE' }}
                         placeholder="Select Payment Mode"
+                        loading={choicesLoading}
                       >
-                        <Option value="Cheque">Cheque</Option>
-                        <Option value="Wire">Wire</Option>
+                        {choices?.payment_modes?.map((mode) => (
+                          <Option key={mode.value} value={mode.value}>
+                            {mode.label}
+                          </Option>
+                        ))}
                       </Select>
                     </Form.Item>
                   </Col>
@@ -358,14 +368,13 @@ const CreateRequest: FC = () => {
                           className={styles.formSelect}
                           style={{ width: '100%', border: '1px solid #A4A7AE' }}
                           placeholder="Select Payment Type"
+                          loading={choicesLoading}
                         >
-                          <Option value="Benefit Payments">Benefit Payments</Option>
-                          <Option value="Credit Card">Credit Card</Option>
-                          <Option value="Capital Purchases">Capital Purchases</Option>
-                          <Option value="Staff Reimbursement">Staff Reimbursement</Option>
-                          <Option value="Employee Benefits">Employee Benefits</Option>
-                          <Option value="Funding">Funding</Option>
-                          <Option value="Intercompany Transfers">Intercompany Transfers</Option>
+                          {choices?.payment_types?.map((type) => (
+                            <Option key={type.value} value={type.value}>
+                              {type.label}
+                            </Option>
+                          ))}
                         </Select>
                       </Form.Item>
                     </Col>
@@ -400,6 +409,51 @@ const CreateRequest: FC = () => {
                             FGG - Family Guardian Group
                           </Option>
                         </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>VAT Status <span style={{ color: 'red' }}>*</span></label>
+                      </div>
+                      <Form.Item
+                        name="chequeVatStatus"
+                        rules={[{ required: true, message: 'Please select VAT status!' }]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Select
+                          onChange={handleVatStatusChange}
+                          value={vatStatus}
+                          placeholder="Select VAT Status"
+                          className={styles.formSelect}
+                          style={{ width: '100%' }}
+                        >
+                          {choices?.vat_statuses?.map((status) => (
+                            <Option key={status.value} value={status.value}>
+                              {status.label}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={8}>
+                      <div style={{ textAlign: 'left', marginBottom: 8 }}>
+                        <label style={{ fontWeight: 500, color: '#1A1A1A' }}>TIN Number {vatStatus === 'Vatable' && <span style={{ color: 'red' }}>*</span>}</label>
+                      </div>
+                      <Form.Item
+                        name="chequeTinNumber"
+                        rules={[
+                          vatStatus === 'Vatable'
+                            ? { required: true, message: 'Please enter TIN number!' }
+                            : {},
+                        ]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input
+                          placeholder="Enter TIN Number"
+                          className={styles.formInput}
+                          disabled={vatStatus !== 'Vatable'}
+                          style={{ width: '100%' }}
+                        />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -507,10 +561,11 @@ const CreateRequest: FC = () => {
                           style={{ width: '100%', border: '1px solid #A4A7AE' }}
                           placeholder="Select Currency"
                         >
-                          <Option value="BSD">BSD</Option>
-                          <Option value="USD">USD</Option>
-                          <Option value="CAD">CAD</Option>
-                          <Option value="GBP">GBP</Option>
+                          {choices?.currencies?.map((currency) => (
+                            <Option key={currency.value} value={currency.value}>
+                              {currency.label}
+                            </Option>
+                          ))}
                         </Select>
                       </Form.Item>
                     </Col>

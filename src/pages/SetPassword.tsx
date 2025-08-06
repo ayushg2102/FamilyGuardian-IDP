@@ -13,19 +13,19 @@ const SetPassword: React.FC = () => {
   const navigate = useNavigate();
   const { setPassword, isLoading, error } = useSetPassword();
 
-  // Extract userId and token from query params
-  const userId = searchParams.get('userId') || '';
+  // Extract uid and token from query params
+  const uid = searchParams.get('uid') || '';
   const token = searchParams.get('token') || '';
 
   const onFinish = async (values: { password: string; confirmPassword: string }) => {
-    // if (!userId || !token) {
-    //   message.error('Invalid reset link. Please request a new one.');
-    //   return;
-    // }
+    if (!uid || !token) {
+      message.error('Invalid reset link. Please request a new one.');
+      return;
+    }
 
     try {
       await setPassword({
-        userId,
+        uid,
         token,
         password: values.password,
         confirmPassword: values.confirmPassword,
@@ -100,7 +100,7 @@ const SetPassword: React.FC = () => {
         >
           <Form.Item
             name="password"
-            label="New Password"
+            label="Old Password"
             rules={[
               { required: true, message: 'Please enter your new password' },
               { min: 8, message: 'Password must be at least 8 characters' },
@@ -108,7 +108,7 @@ const SetPassword: React.FC = () => {
             style={{ marginBottom: 24 }}
           >
             <Input.Password
-              placeholder="Enter new password"
+              placeholder="Enter old password"
               size="large"
               style={{
                 borderRadius: 4,
@@ -119,23 +119,15 @@ const SetPassword: React.FC = () => {
 
           <Form.Item
             name="confirmPassword"
-            label="Confirm New Password"
-            dependencies={['password']}
+            label="New Password"
             rules={[
-              { required: true, message: 'Please confirm your password' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error('The two passwords do not match'));
-                },
-              }),
+              { required: true, message: 'Please enter your new password' },
+              { min: 8, message: 'Password must be at least 8 characters' },
             ]}
             style={{ marginBottom: 32 }}
           >
             <Input.Password
-              placeholder="Confirm new password"
+              placeholder="Enter new password"
               size="large"
               style={{
                 borderRadius: 4,

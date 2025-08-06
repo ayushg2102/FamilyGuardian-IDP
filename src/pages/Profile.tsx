@@ -14,21 +14,27 @@ import {
   Space,
   Spin,
 } from 'antd';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import { useChangePassword } from '../hooks/useChangePassword';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useAuth } from '../contexts/AuthContext';
+import { useCountryCodes } from '../hooks/useCountryCodes';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { Option } = Select;
 
-const countryCodes = [
-  { code: '+91', label: '🇮🇳 +91' },
-  { code: '+1', label: '🇺🇸 +1' },
-  { code: '+44', label: '🇬🇧 +44' },
-];
 
-const departments = ['IT & Services', 'HR', 'Finance', 'Operations'];
+
+const departmentMapping = {
+  1: 'IT & Services',
+  2: 'HR',
+  3: 'Finance',
+  4: 'Operations'
+};
+
+
+
+
 const divisions = ['Corporate Finance', 'Retail', 'Enterprise'];
 
 const Profile: React.FC = () => {
@@ -45,10 +51,17 @@ const Profile: React.FC = () => {
   
   // Fetch user profile data
   const { profileData, isLoading, error, refetch } = useUserProfile(user?.id || user?.UserId);
+  
+  // Fetch country codes from API
+  const { countryCodes, isLoading: countryCodesLoading, error: countryCodesError } = useCountryCodes();
 
-  // Update avatar URL when profile data loads
+  // Load profile image from session storage on component mount (highest priority)
   useEffect(() => {
-    if (profileData?.UserImage) {
+    const savedImage = sessionStorage.getItem('userProfileImage');
+    if (savedImage) {
+      setAvatarUrl(savedImage);
+    } else if (profileData?.UserImage) {
+      // Fallback to backend UserImage if no session image
       setAvatarUrl(profileData.UserImage);
     }
   }, [profileData]);
@@ -72,7 +85,7 @@ const Profile: React.FC = () => {
         avatar: profileData.UserImage || '',
         fullName,
         email: profileData.EmailAddress,
-        phoneCode: profileData.CountryCode?.DialCode || '+93',
+        phoneCode: profileData.CountryCode?.id?.toString() || '1', // Use country code ID as string
         phone: profileData.Mobile || '',
         department: profileData.Department?.toString() || '',
         division: 'Corporate Finance',
@@ -93,7 +106,7 @@ const Profile: React.FC = () => {
       lastName: profileData.LastName || '',
       email: profileData.EmailAddress,
       emailAddress: profileData.EmailAddress,
-      phoneCode: profileData.CountryCode?.DialCode || '+93',
+      phoneCode: profileData.CountryCode?.id || 1, // Use country code ID for backend
       phone: profileData.Mobile || '',
       mobile: profileData.Mobile || '',
       department: profileData.Department?.toString() || '',
@@ -111,10 +124,20 @@ const Profile: React.FC = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = e => {
-        setAvatarUrl(e.target?.result as string);
+        const imageDataUrl = e.target?.result as string;
+        setAvatarUrl(imageDataUrl);
         setUploading(false);
         setDirty(true);
         setAvatarFile(file);
+        
+        // Store the image in session storage for header display
+        sessionStorage.setItem('userProfileImage', imageDataUrl);
+        
+        // Dispatch a custom event to notify other components
+        window.dispatchEvent(new CustomEvent('profileImageUpdated', { 
+          detail: { imageUrl: imageDataUrl } 
+        }));
+        
         message.success('Profile picture updated!');
       };
       reader.readAsDataURL(file);
@@ -125,6 +148,15 @@ const Profile: React.FC = () => {
     setAvatarUrl('');
     setAvatarFile(null);
     setDirty(true);
+    
+    // Remove the image from session storage
+    sessionStorage.removeItem('userProfileImage');
+    
+    // Dispatch a custom event to notify other components
+    window.dispatchEvent(new CustomEvent('profileImageUpdated', { 
+      detail: { imageUrl: null } 
+    }));
+    
     message.success('Profile picture removed');
   };
 
@@ -160,20 +192,85 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleSave = () => {
-    // Save current form and avatar as original
-    const values = form.getFieldsValue();
-    setOriginalProfile({
-      avatar: avatarUrl,
-      fullName: values.fullName,
-      email: values.email,
-      phoneCode: values.phoneCode,
-      phone: values.phone,
-      department: values.department,
-      division: values.division,
-    });
-    message.success('Changes saved!');
-    setDirty(false);
+  const handleSave = async () => {
+    try {
+      const values = form.getFieldsValue();
+      const userId = user?.id || user?.UserId;
+      
+      if (!userId) {
+        message.error('User ID not found');
+        return;
+      }
+
+      // Prepare form data for multipart request
+      const formData = new FormData();
+      
+      // Split full name into first and last name
+      const nameParts = values.fullName?.trim().split(' ') || [];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      // Add all required fields to form data
+      formData.append('UserName', values.userName || values.fullName || '');
+      formData.append('Department', values.department || values.departmentCode || '1');
+      formData.append('Mobile', values.phone || values.mobile || '');
+      formData.append('FirstName', firstName);
+      formData.append('LastName', lastName);
+      formData.append('EmailAddress', values.email || values.emailAddress || '');
+      formData.append('Gender', values.gender || '1');
+      formData.append('CountryCode', values.phoneCode?.toString() || '1');      
+      // Add image file if present
+      if (avatarFile) {
+        formData.append('UserImage', avatarFile);
+      } else if (avatarUrl && !avatarUrl.startsWith('data:')) {
+        // If avatarUrl is a URL string (not base64), send it as string
+        formData.append('UserImage', avatarUrl);
+      } else {
+        // Send empty string if no image
+        formData.append('UserImage', '');
+      }
+
+      // Get auth token
+      const token = sessionStorage.getItem('accessToken');
+      
+      // Make PUT request
+      const response = await fetch(`http://172.172.233.44:9000/api/users/${userId}/`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type for FormData, let browser set it with boundary
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || `HTTP error! status: ${response.status}`);
+      }
+
+      await response.json();
+      
+      // Update original profile state with current values
+      setOriginalProfile({
+        avatar: avatarUrl,
+        fullName: values.fullName,
+        email: values.email,
+        phoneCode: values.phoneCode,
+        phone: values.phone,
+        department: values.department,
+        division: values.division,
+      });
+      
+      // Refetch profile data to get updated information
+      await refetch();
+      
+      message.success('Profile updated successfully!');
+      setDirty(false);
+      
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      message.error(`Failed to update profile: ${error.message || 'Unknown error'}`);
+    }
   };
 
 
@@ -201,7 +298,7 @@ const Profile: React.FC = () => {
   }, [profileData, form]);
 
   // Show loading spinner while fetching data
-  if (isLoading) {
+  if (isLoading || countryCodesLoading) {
     return (
       <div style={{ padding: '32px 0', background: '#fafbfc', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" />
@@ -216,6 +313,7 @@ const Profile: React.FC = () => {
         <Title level={3} style={{ marginLeft: 32, marginBottom: 24 }}>Profile & Password</Title>
         <div style={{ textAlign: 'center', padding: '50px' }}>
           <p>Error loading profile data: {error}</p>
+          {countryCodesError && <p>Error loading country codes: {countryCodesError}</p>}
           <Button onClick={() => refetch()} type="primary">Retry</Button>
         </div>
       </div>
@@ -289,7 +387,7 @@ const Profile: React.FC = () => {
                 </Col>
               </Row>
 
-              <Row gutter={16}>
+              {/* <Row gutter={16}>
                 <Col xs={24} md={12}>
                   <Form.Item label="First Name" name="firstName">
                     <Input placeholder="Enter your first name" />
@@ -300,7 +398,7 @@ const Profile: React.FC = () => {
                     <Input placeholder="Enter your last name" />
                   </Form.Item>
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row gutter={16}>
                 <Col xs={24} md={12}>
@@ -312,7 +410,7 @@ const Profile: React.FC = () => {
                     <Input placeholder="Enter your full name" />
                   </Form.Item>
                 </Col>
-                <Col xs={24} md={12}>
+                {/* <Col xs={24} md={12}>
                   <Form.Item
                     label="Email"
                     name="email"
@@ -320,18 +418,10 @@ const Profile: React.FC = () => {
                   >
                     <Input placeholder="Enter your email" />
                   </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
+                </Col> */}
                 <Col xs={24} md={12}>
                   <Form.Item label="Email Address" name="emailAddress">
                     <Input placeholder="Enter your email address" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item label="Mobile" name="mobile">
-                    <Input placeholder="Enter your mobile number" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -340,17 +430,17 @@ const Profile: React.FC = () => {
                 <Col xs={24} md={12}>
                   <Form.Item label="Gender" name="gender">
                     <Select placeholder="Select gender">
-                      <Option value="Male">Male</Option>
-                      <Option value="Female">Female</Option>
-                      <Option value="Other">Other</Option>
+                      <Option value="1">Male</Option>
+                      <Option value="2">Female</Option>
+                      <Option value="3">Other</Option>
                     </Select>
                   </Form.Item>
                 </Col>
                 <Col xs={24} md={12}>
                   <Form.Item label="User Status" name="userStatus">
                     <Select placeholder="Select status">
-                      <Option value="Active">Active</Option>
-                      <Option value="Inactive">Inactive</Option>
+                      <Option value="1">Active</Option>
+                      <Option value="2">Inactive</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -358,24 +448,23 @@ const Profile: React.FC = () => {
 
               <Row gutter={16}>
                 <Col xs={24} md={12}>
-                  <Form.Item label="Password Expiry" name="passwordExpiry">
-                    <Input disabled placeholder="Password Expiry" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item label="Department Code" name="departmentCode">
-                    <Input placeholder="Enter department code" />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col xs={24} md={12}>
                   <Form.Item label="Phone Number" required style={{ marginBottom: 0 }}>
                     <Space.Compact style={{ width: '100%' }}>
                       <Form.Item name="phoneCode" noStyle>
-                        <Select style={{ width: 90 }}>
-                          {countryCodes.map(c => (
-                            <Option key={c.code} value={c.code}>{c.label}</Option>
+                        <Select 
+                          style={{ width: 160 }} 
+                          loading={countryCodesLoading}
+                          showSearch
+                          placeholder="Select country"
+                          optionFilterProp="children"
+                          filterOption={(input, option) =>
+                            option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
+                          }
+                        >
+                          {countryCodes.map(country => (
+                            <Option key={country.id} value={country.id}>
+                              {country.DialCode} - {country.Name}
+                            </Option>
                           ))}
                         </Select>
                       </Form.Item>
@@ -396,8 +485,8 @@ const Profile: React.FC = () => {
                     rules={[{ required: true, message: 'Select department' }]}
                   >
                     <Select placeholder="Select department">
-                      {departments.map(d => (
-                        <Option key={d} value={d}>{d}</Option>
+                      {Object.entries(departmentMapping).map(([id, name]) => (
+                        <Option key={id} value={id}>{name}</Option>
                       ))}
                     </Select>
                   </Form.Item>

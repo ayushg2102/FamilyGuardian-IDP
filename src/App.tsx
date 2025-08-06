@@ -35,7 +35,8 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/set-password" element={<SetPassword />} />
+              <Route path="/reset-password" element={<SetPassword />} />
+              <Route path="/set-password" element={<Navigate to="/reset-password" replace />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               {/* Main app layout with protected routes */}
               <Route element={

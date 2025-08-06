@@ -15,16 +15,52 @@ import fgpLogo from '../../assets/images/fgp_logo.svg';
 const { Header, Content } = Layout;
 const { Text } = Typography;
 
+// Department mapping to convert IDs to readable names
+const departmentMapping = {
+  1: 'IT & Services',
+  2: 'HR',
+  3: 'Finance',
+  4: 'Operations'
+};
+
+// Helper function to get department name by ID
+const getDepartmentName = (departmentId: number | string): string => {
+  const id = typeof departmentId === 'string' ? parseInt(departmentId) : departmentId;
+  return departmentMapping[id as keyof typeof departmentMapping] || departmentId?.toString() || '';
+};
+
 const AppLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Load profile image from session storage on component mount
+  useEffect(() => {
+    const savedImage = sessionStorage.getItem('userProfileImage');
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
+  }, []);
+
+  // Listen for profile image updates from other components
+  useEffect(() => {
+    const handleProfileImageUpdate = (event: CustomEvent) => {
+      const { imageUrl } = event.detail;
+      setProfileImage(imageUrl);
+    };
+
+    window.addEventListener('profileImageUpdated', handleProfileImageUpdate as EventListener);
+    return () => {
+      window.removeEventListener('profileImageUpdated', handleProfileImageUpdate as EventListener);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -221,7 +257,7 @@ const AppLayout: React.FC = () => {
               <span style={{ position: 'relative', display: 'inline-block', marginRight: 14 }}>
                 <Avatar
                   size={48}
-                  src={user?.avatar}
+                  src={profileImage || user?.avatar}
                   icon={<UserOutlined />}
                   style={{ border: '2px solid #f0f0f0', background: '#fff' }}
                 />
@@ -272,7 +308,7 @@ const AppLayout: React.FC = () => {
                       padding: 0,
                     }}
                   >
-                    {user?.department}
+                    {getDepartmentName(user?.department || '')}
                   </Text>
                 </div>
                 {/* Chevron down icon */}

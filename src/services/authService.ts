@@ -96,6 +96,52 @@ export const clearAuthTokens = (): void => {
   localStorage.removeItem('refreshToken');
   sessionStorage.removeItem('accessToken');
   sessionStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
+  sessionStorage.removeItem('user');
+};
+
+// Check if API response indicates token is invalid and handle logout
+export const handleTokenValidationError = (error: any): boolean => {
+  // Check if the error response matches the token expiration format
+  if (error?.response?.data) {
+    const errorData = error.response.data;
+    
+    // Check for the specific token expiration response format
+    if (errorData.detail === "Given token not valid for any token type" && 
+        errorData.code === "token_not_valid") {
+      
+      console.log('Token expired, logging out user');
+      
+      // Clear all authentication data
+      clearAuthTokens();
+      
+      // Redirect to login page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      
+      return true; // Indicates that logout was triggered
+    }
+  }
+  
+  // Also check for direct error object format (for fetch-based requests)
+  if (error?.detail === "Given token not valid for any token type" && 
+      error?.code === "token_not_valid") {
+    
+    console.log('Token expired, logging out user');
+    
+    // Clear all authentication data
+    clearAuthTokens();
+    
+    // Redirect to login page
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+    
+    return true; // Indicates that logout was triggered
+  }
+  
+  return false; // No logout was triggered
 };
 
 export const login = async (credentials: LoginCredentials, remember: boolean = false): Promise<AuthResponse['data']> => {

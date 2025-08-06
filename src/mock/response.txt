@@ -1,31 +1,82 @@
 {
-    "Entity": [
-        "Invalid pk \"1\" - object does not exist."
+    "RequestId": 1,
+    "Initiator": null,
+    "Entity": 1,
+    "PaymentMode": "Cheque",
+    "PaymentType": "corporate_payments",
+    "Department": null,
+    "DepartmentHead": 1,
+    "Approvals": [
+        {
+            "id": 1,
+            "PaymentRequest": 1,
+            "Stage": "DepartmentHead",
+            "Action": "Pending",
+            "PerformedBy": 1,
+            "PerformedByUserName": "admin",
+            "PerformedAt": "2025-08-05T14:34:23.424247Z",
+            "Remarks": "",
+            "RejectionReason": null
+        }
     ],
     "Vendors": [
         {
-            "BankAccount": [
-                "Invalid pk \"1\" - object does not exist."
-            ],
+            "id": 1,
+            "PayeeName": "abc",
+            "AccountHolderName": "abcd",
+            "BankAccount": 1,
+            "VatStatus": "vatable",
+            "TinNumber": "1",
+            "InvoiceDate": "2025-07-07",
+            "InvoiceNumber": "1",
+            "Currency": "USD",
             "GLEntries": [
                 {
-                    "GLAccount": [
-                        "Invalid pk \"1\" - object does not exist."
+                    "id": 1,
+                    "GLAccount": 1,
+                    "GLDescription": "abcd",
+                    "Amount": "100.00",
+                    "Attachments": [
+                        {
+                            "id": 1,
+                            "File": "http://172.172.233.44:9000/media/gl_attachments/Screenshot_from_2025-08-05_16-37-32.png"
+                        },
+                        {
+                            "id": 2,
+                            "File": "http://172.172.233.44:9000/media/gl_attachments/Screenshot_from_2025-08-05_15-06-41.png"
+                        }
                     ]
                 }
             ]
         }
     ],
-    "PayeeBankAccountNumber": [
-        "This field may not be blank."
-    ],
-    "BankName": [
-        "This field may not be blank."
-    ],
-    "BankLocation": [
-        "This field may not be blank."
-    ],
-    "Transit": [
-        "This field may not be blank."
-    ]
+    "vendor_count": 1,
+    "gl_account_count": 1,
+    "attachment_count": 2,
+    "total_amount": 100.0,
+    "current_stage": "Department Head",
+    "allows_multiple_vendors": false,
+    "allows_multiple_transactions": true,
+    "payment_type_rules": {
+        "allows_multiple_vendors": false,
+        "allows_multiple_transactions": true,
+        "description": "Single vendor only, multiple GL entries required",
+        "vendor_rule": "Only one vendor allowed",
+        "gl_rule": "Multiple GL entries required"
+    },
+    "CreatedOn": "2025-08-05T14:34:20.748033Z",
+    "UpdatedOn": "2025-08-05T14:34:20.748045Z",
+    "Date": "2025-08-05",
+    "AccountHolderName": "abc",
+    "PayeeBankAccountNumber": "1",
+    "BankName": "abc",
+    "BankLocation": "abc",
+    "Transit": "abc",
+    "Status": "Pending",
+    "Remarks": "abc",
+    "LastRemarks": "abc",
+    "LastRejectionReason": "sample",
+    "CreatedBy": 1,
+    "UpdatedBy": 1,
+    "Division": null
 }

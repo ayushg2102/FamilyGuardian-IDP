@@ -16,24 +16,65 @@ const ForgotPassword: React.FC = () => {
     setLoading(true);
     setEmail(values.email);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('http://172.172.233.44:9000/api/auth/forgot_password/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          EmailAddress: values.email,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.code === 200) {
+        setEmailSent(true);
+        message.success(result.message || 'Password reset email sent successfully!');
+      } else {
+        // Handle error response
+        message.error(result.message || 'Failed to send password reset email');
+      }
+    } catch (error: any) {
+      console.error('Error sending forgot password request:', error);
+      message.error('Network error. Please try again later.');
+    } finally {
       setLoading(false);
-      setEmailSent(true);
-      message.success('Password reset email sent successfully!');
-    }, 2000);
+    }
   };
 
   const handleBackToLogin = () => {
     navigate('/login');
   };
 
-  const handleResendEmail = () => {
+  const handleResendEmail = async () => {
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const response = await fetch('http://172.172.233.44:9000/api/auth/forgot_password/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          EmailAddress: email,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.code === 200) {
+        message.success('Email resent successfully!');
+      } else {
+        message.error(result.message || 'Failed to resend email');
+      }
+    } catch (error: any) {
+      console.error('Error resending email:', error);
+      message.error('Network error. Please try again later.');
+    } finally {
       setLoading(false);
-      message.success('Email resent successfully!');
-    }, 1500);
+    }
   };
 
   if (emailSent) {
