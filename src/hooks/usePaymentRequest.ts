@@ -19,42 +19,96 @@ export const usePaymentRequest = () => {
       // Handle vendors from form values
       const vendors = formValues.vendors || [];
       
+      // Collect all files from form values
+      const files: { [key: string]: File } = {};
+      let fileCounter = 1;
+      
+      // Process vendors and their GL entries to extract files and format data
+      const processedVendors = vendors.map((vendor: any, vendorIndex: number) => {
+        const glEntries = vendor.glDetails || [];
+        
+        const processedGLEntries = glEntries.map((glEntry: any, glIndex: number) => {
+          const attachments: Array<{ File: string }> = [];
+          
+          // Handle file attachments for this GL entry
+          if (glEntry.attachment && Array.isArray(glEntry.attachment)) {
+            glEntry.attachment.forEach((file: any) => {
+              if (file.originFileObj) {
+                const fileKey = `file${fileCounter}`;
+                files[fileKey] = file.originFileObj;
+                attachments.push({ File: fileKey });
+                fileCounter++;
+              }
+            });
+          }
+          
+          // Map GL account string values to database IDs
+          const glAccountMap: { [key: string]: number } = {
+            '1000': 1, // Cash
+            '2000': 2, // Receivables  
+            '3000': 3, // Payables
+            '4000': 4, // Revenue
+            '5000': 5  // Expenses
+          };
+          
+          return {
+            GLAccount: glAccountMap[glEntry.account] || 1,
+            GLDescription: glEntry.description || `GL Entry ${glIndex + 1}`,
+            Amount: parseFloat(glEntry.amount) || 0,
+            Attachments: attachments
+          };
+        });
+        
+        // Map VAT status values to API expected format
+        const vatStatusMap: { [key: string]: string } = {
+          'Vatable': 'vatable',
+          'Non-Vatable': 'non_vatable',
+          'vatable': 'vatable',
+          'non_vatable': 'non_vatable'
+        };
+        
+        const rawVatStatus = vendor.vatStatus || formValues.creditCardVatStatus || 'Vatable';
+        const mappedVatStatus = vatStatusMap[rawVatStatus] || 'vatable';
+        
+        return {
+          PayeeName: vendor.payeeName || `Vendor ${vendorIndex + 1}`,
+          AccountHolderName: vendor.accountHolderName || '',
+          BankAccount: 1, // This should be mapped from vendor.payeeBankAccount
+          VatStatus: mappedVatStatus,
+          TinNumber: vendor.tinNumber || formValues.creditCardTinNumber || '',
+          InvoiceDate: vendor.invoiceDate ? 
+            dayjs(vendor.invoiceDate).format('YYYY-MM-DD') : 
+            (formValues.creditCardInvoiceDate ? 
+              dayjs(formValues.creditCardInvoiceDate).format('YYYY-MM-DD') : 
+              new Date().toISOString().split('T')[0]),
+          InvoiceNumber: vendor.invoiceNumber || formValues.creditCardInvoiceNumber || `INV-${Date.now()}-${vendorIndex}`,
+          Currency: vendor.currency || formValues.creditCardCurrency || 'BSD',
+          GLEntries: processedGLEntries
+        };
+      });
+      
+      // Extract bank details from the first vendor if available
+      const firstVendor = vendors[0] || {};
+      const bankAccount = firstVendor.payeeBankAccount || '';
+      const bankParts = bankAccount.split(' - ');
+      const bankName = bankParts[0] || '';
+      const accountNumber = firstVendor.payeeBankAccountNumber || '';
+      
       // Format the data according to the API spec
       const requestData: PaymentRequestData = {
-        Entity: 1, // Default to 1 for now, should be mapped from formValues.entity
-        PaymentMode: formValues.paymentMode || 'Wire', // Default to 'Wire' if not provided
+        Entity: 1, // This should be mapped from formValues.entity
+        PaymentMode: formValues.paymentMode || 'Wire',
         PaymentType: formValues.paymentType ? 
           String(formValues.paymentType).toLowerCase().replace(/\s+/g, '_') : 
-          'unknown',
-        Department: 1, // Default to 1 for now, should be mapped from formValues.department
-        DepartmentHead: 1, // Default to 1 for now, should be mapped from formValues.departmentHead
-        Vendors: vendors.map((vendor: any, index: number) => ({
-          PayeeName: vendor.payeeName || `Vendor ${index + 1}`,
-          AccountHolderName: vendor.accountHolderName || '',
-          BankAccount: 1, // Default to 1 for now, should be mapped from vendor.payeeBankAccount
-          VatStatus: formValues.creditCardVatStatus ? 
-            String(formValues.creditCardVatStatus).toLowerCase() : 
-            'vatable',
-          TinNumber: formValues.creditCardTinNumber || '',
-          InvoiceDate: formValues.creditCardInvoiceDate ? 
-            dayjs(formValues.creditCardInvoiceDate).format('YYYY-MM-DD') : 
-            new Date().toISOString().split('T')[0],
-          InvoiceNumber: formValues.creditCardInvoiceNumber || `INV-${Date.now()}-${index}`,
-          Currency: formValues.creditCardCurrency || 'BSD',
-          GLEntries: [
-            {
-              GLAccount: 1, // Default to 1 for now, should be mapped from vendor.glAccount
-              GLDescription: vendor.glDescription || `Payment for ${vendor.payeeName || 'vendor'}`,
-              Amount: vendor.amount ? String(vendor.amount) : '0',
-              Attachments: [] // Handle file uploads if needed
-            }
-          ]
-        })),
-        AccountHolderName: vendors[0]?.accountHolderName || '',
-        PayeeBankAccountNumber: '', // Should be set based on payment mode
-        BankName: '', // Should be extracted from bank account info
-        BankLocation: '', // Should be set if available
-        Transit: '', // Should be set if available
+          'corporate_payments',
+        Department: 1, // This should be mapped from formValues.department
+        DepartmentHead: 1, // This should be mapped from formValues.departmentHead
+        Vendors: processedVendors,
+        AccountHolderName: firstVendor.accountHolderName || '',
+        PayeeBankAccountNumber: accountNumber,
+        BankName: bankName,
+        BankLocation: firstVendor.bankLocation || '',
+        Transit: firstVendor.transitNumber || '',
         Status: 'draft',
         Remarks: formValues.remarks || '',
         LastRemarks: '',
@@ -64,9 +118,10 @@ export const usePaymentRequest = () => {
       };
 
       console.log('Submitting payment request:', requestData);
+      console.log('Files to upload:', Object.keys(files));
       
-      // Call the payment service
-      const response = await createPaymentRequest(requestData);
+      // Call the payment service with files
+      const response = await createPaymentRequest(requestData, files);
       
       console.log('Payment request created:', response);
       message.success('Payment request submitted successfully!');

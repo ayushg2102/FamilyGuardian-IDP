@@ -1,12 +1,13 @@
 import React from 'react';
-import { Button, Row, Col, DatePicker } from 'antd';
+import { Button, Row, Col, DatePicker, Spin, Alert } from 'antd';
 import { CalendarOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { dashboardStatsData, dashboardMyRequests, dashboardNotifications } from '../mock/mockData';
+import { useAuth } from '../contexts/AuthContext';
+import { useDashboardNotifications } from '../hooks/useDashboardNotifications';
+import { useDashboardSummary } from '../hooks/useDashboardSummary';
+import { usePaymentRequestsList } from '../hooks/usePaymentRequestsList';
 import { getStatusTag } from '../components/common/statusUtils.tsx';
 import { Dayjs } from 'dayjs';
-import { notify } from '../components/common/notification';
-import { useEffect } from 'react';
 import topRight from '../../assets/images/top_right.svg';
 import bottomLeft from '../../assets/images/bottom_left.svg';
 import draftIcon from '../../assets/images/drafticon.svg';
@@ -18,37 +19,28 @@ import documentIcon from '../../assets/images/Document.svg';
 const { RangePicker } = DatePicker;
 
 const Dashboard: React.FC = () => {
-  useEffect(() => {
-    // Simulate an API error
-    const timer = setTimeout(() => {
-      notify('error', 'API Error', 'Failed to fetch dashboard data.');
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Map the stats data with appropriate icons based on title
-  const statsData = dashboardStatsData.map(stat => {
-    let icon;
-    switch(stat.title) {
-      case 'Draft':
-        icon = draftIcon;
-        break;
-      case 'Pending':
-        icon = pendingIcon;
-        break;
-      case 'Pending & Returned':
-        icon = pendingAndReturnedIcon;
-        break;
-      case 'Approved':
-        icon = approvedIcon;
-        break;
-      default:
-        icon = documentIcon;
-    }
-    return { ...stat, icon };
+  const { user } = useAuth();
+  const { summaryData, loading, error, getFormattedStatsData } = useDashboardSummary();
+  const { loading: requestsLoading, error: requestsError, getDashboardRequests } = usePaymentRequestsList({
+    userId: user?.UserId || user?.id
   });
-  const myRequests = dashboardMyRequests;
-  const notifications = dashboardNotifications;
+  const { notifications, loading: notificationsLoading, error: notificationsError } = useDashboardNotifications({ 
+    userId: user?.UserId || user?.id 
+  });
+
+  // Icon mapping for the stats data
+  const iconMapping = {
+    draft: draftIcon,
+    pending: pendingIcon,
+    pendingAndReturned: pendingAndReturnedIcon,
+    approved: approvedIcon,
+    document: documentIcon,
+    total: documentIcon,
+  };
+
+  // Get formatted stats data with icons
+  const statsData = getFormattedStatsData(iconMapping);
+  const myRequests = getDashboardRequests();
 
   const navigate = useNavigate();
   const [dateRange, setDateRange] = React.useState<[Dayjs | null, Dayjs | null]>([null, null]);
@@ -257,7 +249,22 @@ const Dashboard: React.FC = () => {
           msOverflowStyle: 'none',
         }}
       >
-        {statsData.map((stat, idx) => (
+        {loading ? (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+            <Spin size="large" />
+            <div style={{ marginTop: '16px', color: 'var(--text-grey)' }}>Loading dashboard data...</div>
+          </div>
+        ) : error ? (
+          <div style={{ gridColumn: '1 / -1', padding: '16px' }}>
+            <Alert
+              message="Error Loading Dashboard Data"
+              description={error}
+              type="error"
+              showIcon
+            />
+          </div>
+        ) : (
+          statsData.map((stat, idx) => (
           <div
             key={idx}
             className="dashboard-stats-card"
@@ -322,7 +329,8 @@ const Dashboard: React.FC = () => {
               <img src={stat.icon} alt={stat.title} style={{ width: 28, height: 28 }} />
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
       {/* Main Content */}
       <Row
@@ -358,7 +366,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--text-main)' }}>
-                My Requests(10)
+                My Requests({requestsLoading ? '...' : myRequests.length})
               </span>
               <Button
                 style={{
@@ -377,111 +385,140 @@ const Dashboard: React.FC = () => {
               </Button>
             </div>
             <div style={{ maxHeight: 420, overflowY: 'auto', paddingRight: 8 }}>
-              {myRequests.map((request, idx) => (
-                <div
-                  key={idx}
-                  className="dashboard-request-card"
-                  style={{
-                    background: 'var(--background-light)',
-                    borderRadius: 8,
-                    boxShadow: '0 1px 4px var(--border-grey)',
-                    padding: 24,
-                    marginBottom: 18,
-                    border: '1px solid var(--border-light)',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      marginBottom: 8,
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: 'var(--primary-color)',
-                        fontWeight: 700,
-                        fontSize: 16,
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => navigate(`/requests/${request.id}`)}
-                    >
-                      {request.id}
-                    </span>
-                    <span
-                      style={{
-                        color: 'var(--text-secondary)',
-                        fontSize: 13,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                      }}
-                    >
-                      <CalendarOutlined /> {request.date}
-                    </span>
-                    {getStatusTag(request.status)}
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, marginBottom: 8 }}>
-                    <div>
-                      <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
-                        Payment Type:
-                      </span>{' '}
-                      <span style={{ fontWeight: 700, fontSize: 14 }}>{request.paymentType}</span>
-                    </div>
-                    <div>
-                      <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Entity:</span>{' '}
-                      <span style={{ fontWeight: 700, fontSize: 14 }}>{request.entity}</span>
-                    </div>
-                    <div>
-                      <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
-                        Initiator:
-                      </span>{' '}
-                      <span style={{ fontWeight: 700, fontSize: 14 }}>{request.initiator}</span>
-                    </div>
-                    <div>
-                      <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Amount:</span>{' '}
-                      <span style={{ fontWeight: 700, fontSize: 14 }}>{request.amount}</span>
-                    </div>
-                  </div>
-                  {request.note && (
-                    <div
-                      style={{
-                        background: 'var(--background-note)',
-                        color: 'var(--text-error)',
-                        borderRadius: 6,
-                        padding: '10px 16px',
-                        marginBottom: 8,
-                        fontSize: 14,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                      }}
-                    >
-                      <span style={{ fontSize: 16 }}>⛔</span> {request.note}
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                      style={{
-                        background: 'var(--primary-color)',
-                        color: 'var(--text-light)',
-                        border: 'none',
-                        borderRadius: 6,
-                        fontWeight: 500,
-                        fontSize: 15,
-                        height: 36,
-                        minWidth: 70,
-                      }}
-                      onClick={() => navigate(`/requests/${request.id}`)}
-                    >
-                      {request.action}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+  {requestsLoading ? (
+    <div style={{ textAlign: 'center', padding: '40px' }}>
+      <Spin size="large" />
+      <div style={{ marginTop: '16px', color: 'var(--text-grey)' }}>
+        Loading requests...
+      </div>
+    </div>
+  ) : requestsError ? (
+    <Alert
+      message="Error Loading Requests"
+      description={requestsError}
+      type="error"
+      showIcon
+      style={{ margin: '20px 0' }}
+    />
+  ) : myRequests.length === 0 ? (
+    <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-grey)' }}>
+      No requests found
+    </div>
+  ) : (
+    myRequests.map((request, idx) => (
+      <div
+        key={idx}
+        className="dashboard-request-card"
+        style={{
+          background: 'var(--background-light)',
+          borderRadius: 8,
+          boxShadow: '0 1px 4px var(--border-grey)',
+          padding: 24,
+          marginBottom: 18,
+          border: '1px solid var(--border-light)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 8,
+            flexWrap: 'wrap',
+          }}
+        >
+          <span
+            style={{
+              color: 'var(--primary-color)',
+              fontWeight: 700,
+              fontSize: 16,
+              cursor: 'pointer',
+            }}
+            onClick={() => navigate(`/requests/${request.id}`)}
+          >
+            {request.id}
+          </span>
+          <span
+            style={{
+              color: 'var(--text-secondary)',
+              fontSize: 13,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
+            <CalendarOutlined /> {request.date}
+          </span>
+          {getStatusTag(request.status)}
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, marginBottom: 8 }}>
+          <div>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+              Payment Type:
+            </span>{' '}
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{request.paymentType}</span>
+          </div>
+          <div>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Entity:</span>{' '}
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{request.entity}</span>
+          </div>
+          <div>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+              Initiator:
+            </span>{' '}
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{request.initiator}</span>
+          </div>
+          <div>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Amount:</span>{' '}
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{request.amount}</span>
+          </div>
+        </div>
+
+        {request.note && (
+          <div
+            style={{
+              background: 'var(--background-note)',
+              color: 'var(--text-error)',
+              borderRadius: 6,
+              padding: '10px 16px',
+              marginBottom: 8,
+              fontSize: 14,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <span style={{ fontSize: 16 }}>⛔</span> {request.note}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            style={{
+              background: 'var(--primary-color)',
+              color: 'var(--text-light)',
+              border: 'none',
+              borderRadius: 6,
+              fontWeight: 500,
+              fontSize: 15,
+              height: 36,
+              minWidth: 70,
+            }}
+            onClick={() =>{
+              const numericId = request.id.split('-')[1]; // "000002"
+              const trimmedId = parseInt(numericId, 10); // 2
+              navigate(`/requests/${trimmedId}`)}
+            } 
+          >
+            {request.action}
+          </Button>
+        </div>
+      </div>
+    ))
+  )}
+</div>
+
           </div>
         </Col>
         {/* Notification Panel */}
@@ -508,90 +545,123 @@ const Dashboard: React.FC = () => {
               Notification Panel
             </span>
             <div style={{ maxHeight: 420, overflowY: 'auto', paddingRight: 8 }}>
-              {notifications.map((notification, idx) => (
-                <div
-                  key={idx}
-                  className="dashboard-notification-card"
-                  style={{
-                    background: 'var(--background-light)',
-                    borderRadius: 8,
-                    boxShadow: '0 1px 4px var(--border-grey)',
-                    padding: 20,
-                    marginBottom: 18,
-                    border: '1px solid var(--border-light)',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      marginBottom: 8,
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: 'var(--primary-color)',
-                        fontWeight: 700,
-                        fontSize: 15,
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => navigate(`/requests/${notification.id}`)}
-                    >
-                      {notification.id}
-                    </span>
-                    {getStatusTag(notification.status)}
-                  </div>
-                  <div
-                    style={{
-                      color: 'var(--text-main)',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {notification.bold && (
-                      <span style={{ fontWeight: 700 }}>{notification.bold} </span>
-                    )}
-                    <span style={{ fontWeight: 400 }}>
-                      {notification.title.replace(notification.bold || '', '')}
-                    </span>
-                  </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 8 }}>
-                    By: {notification.by}
-                  </div>
-                  <div
-                    style={{
-                      color: 'var(--text-secondary)',
-                      fontSize: 13,
-                      marginBottom: 8,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    <CalendarOutlined /> {notification.date}
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                      style={{
-                        background: 'var(--primary-color)',
-                        color: 'var(--text-light)',
-                        border: 'none',
-                        borderRadius: 6,
-                        fontWeight: 500,
-                        fontSize: 15,
-                        height: 32,
-                        minWidth: 60,
-                      }}
-                      onClick={() => navigate(`/requests/${notification.id}`)}
-                    >
-                      {notification.action}
-                    </Button>
-                  </div>
+              {notificationsLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
+                  <Spin size="large" />
                 </div>
-              ))}
+              ) : notificationsError ? (
+                <Alert
+                  message="Error loading notifications"
+                  description={notificationsError}
+                  type="error"
+                  showIcon
+                  style={{ marginBottom: 16 }}
+                />
+              ) : notifications.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)' }}>
+                  No notifications available
+                </div>
+              ) : (
+                notifications.map((notification) => {
+                  // Format the date
+                  const formattedDate = new Date(notification.PerformedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  });
+
+                  return (
+                    <div
+                      key={notification.id}
+                      className="dashboard-notification-card"
+                      style={{
+                        background: 'var(--background-light)',
+                        borderRadius: 8,
+                        boxShadow: '0 1px 4px var(--border-grey)',
+                        padding: 20,
+                        marginBottom: 18,
+                        border: '1px solid var(--border-light)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          marginBottom: 8,
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <span
+                          style={{
+                            color: 'var(--primary-color)',
+                            fontWeight: 700,
+                            fontSize: 15,
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => navigate(`/requests/${notification.PaymentRequest}`)}
+                        >
+                          PR-{notification.PaymentRequest}
+                        </span>
+                        {getStatusTag(notification.Action)}
+                      </div>
+                      <div
+                        style={{
+                          color: 'var(--text-main)',
+                          fontSize: 14,
+                          fontWeight: 700,
+                          marginBottom: 4,
+                        }}
+                      >
+                        <span style={{ fontWeight: 700 }}>{notification.Stage} </span>
+                        <span style={{ fontWeight: 400 }}>approval {notification.Action.toLowerCase()}</span>
+                      </div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 8 }}>
+                        By: {notification.PerformedByUserName}
+                      </div>
+                      {notification.Remarks && (
+                        <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 8 }}>
+                          Remarks: {notification.Remarks}
+                        </div>
+                      )}
+                      {notification.RejectionReason && (
+                        <div style={{ color: 'var(--error-color)', fontSize: 13, marginBottom: 8 }}>
+                          Rejection Reason: {notification.RejectionReason}
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          color: 'var(--text-secondary)',
+                          fontSize: 13,
+                          marginBottom: 8,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        <CalendarOutlined /> {formattedDate}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button
+                          style={{
+                            background: 'var(--primary-color)',
+                            color: 'var(--text-light)',
+                            border: 'none',
+                            borderRadius: 6,
+                            fontWeight: 500,
+                            fontSize: 15,
+                            height: 32,
+                            minWidth: 60,
+                          }}
+                          onClick={() => navigate(`/requests/${notification.PaymentRequest}`)}
+                        >
+                          View
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </Col>

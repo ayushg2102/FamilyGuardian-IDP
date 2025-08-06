@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Row, Col, DatePicker } from 'antd';
+import { Button, Row, Col, DatePicker, Spin, Alert } from 'antd';
 import { CalendarOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { Dayjs } from 'dayjs';
@@ -15,11 +15,12 @@ import approvedIcon from '../../assets/images/ApprovedIcon.svg';
 import documentIcon from '../../assets/images/Document.svg';
 
 // Import data and styles
-import { dashboardStatsData, dashboardMyRequests } from '../mock/mockData';
-import { systemAlerts, adminActions, userStatusData, userRoleData, processAdminStats, processAdminRequests } from '../mock/adminMockData';
+import { dashboardMyRequests } from '../mock/mockData';
+import { systemAlerts, adminActions, userStatusData, userRoleData, processAdminRequests } from '../mock/adminMockData';
 import { dashboardStyles, chartConfigs, tooltipFormatters } from '../styles/adminDashboard.styles';
 import { getStatusTag } from '../components/common/statusUtils';
 import { notify } from '../components/common/notification';
+import { useDashboardSummary } from '../hooks/useDashboardSummary';
 
 export interface SystemAlert {
   id: string;
@@ -39,9 +40,22 @@ const AdminDashboard: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const { loading, error, getFormattedStatsData } = useDashboardSummary();
   const [alerts] = React.useState<SystemAlert[]>(systemAlerts);
-  const [statsData] = React.useState(processAdminStats(dashboardStatsData));
   const [allRequests] = React.useState(processAdminRequests(dashboardMyRequests));
+  
+  // Icon mapping for the stats data
+  const iconMapping = {
+    draft: draftIcon,
+    pending: pendingIcon,
+    pendingAndReturned: pendingAndReturnedIcon,
+    approved: approvedIcon,
+    document: documentIcon,
+    total: documentIcon,
+  };
+  
+  // Get formatted stats data with icons
+  const statsData = getFormattedStatsData(iconMapping);
   const navigate = useNavigate();
   const [dateRange, setDateRange] = React.useState<[Dayjs | null, Dayjs | null]>([null, null]);
 
@@ -76,14 +90,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Map icon names to actual icon imports
-  const iconMap: { [key: string]: string } = {
-    'draftIcon': draftIcon,
-    'pendingIcon': pendingIcon,
-    'pendingAndReturnedIcon': pendingAndReturnedIcon,
-    'approvedIcon': approvedIcon,
-    'documentIcon': documentIcon
-  };
+
 
   return (
     <div style={{ ...dashboardStyles.container, position: 'relative', minHeight: '100vh' }}>
@@ -193,9 +200,22 @@ const AdminDashboard: React.FC = () => {
         position: 'relative',
         zIndex: 1
       }}>
-        {statsData.map((stat, idx) => {
-          const icon = iconMap[stat.icon] || documentIcon;
-          return (
+        {loading ? (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+            <Spin size="large" />
+            <div style={{ marginTop: '16px', color: 'var(--text-grey)' }}>Loading dashboard data...</div>
+          </div>
+        ) : error ? (
+          <div style={{ gridColumn: '1 / -1', padding: '16px' }}>
+            <Alert
+              message="Error Loading Dashboard Data"
+              description={error}
+              type="error"
+              showIcon
+            />
+          </div>
+        ) : (
+          statsData.map((stat, idx) => (
             <div
               key={idx}
               style={{
@@ -255,7 +275,7 @@ const AdminDashboard: React.FC = () => {
                 flexShrink: 0,
               }}>
                 <img 
-                  src={icon} 
+                  src={stat.icon || documentIcon} 
                   alt={stat.title} 
                   style={{ 
                     width: 24, 
@@ -265,8 +285,8 @@ const AdminDashboard: React.FC = () => {
                 />
               </div>
             </div>
-          );
-        })}
+          ))
+        )}
       </div>
 
       {/* Analytics Charts */}

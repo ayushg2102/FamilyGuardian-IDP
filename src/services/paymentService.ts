@@ -70,16 +70,49 @@ export interface PaymentRequestResponse {
 }
 
 export const createPaymentRequest = async (
-  data: PaymentRequestData
+  data: PaymentRequestData,
+  files?: { [key: string]: File }
 ): Promise<PaymentRequestResponse> => {
   try {
     const token = localStorage.getItem('accessToken');
+    
+    // Create FormData for multipart/form-data submission
+    const formData = new FormData();
+    
+    // Add vendors as JSON string
+    formData.append('Vendors', JSON.stringify(data.Vendors));
+    
+    // Add other form fields
+    formData.append('PaymentMode', data.PaymentMode);
+    formData.append('PaymentType', data.PaymentType);
+    formData.append('Entity', data.Entity.toString());
+    formData.append('AccountHolderName', data.AccountHolderName);
+    formData.append('PayeeBankAccountNumber', data.PayeeBankAccountNumber);
+    formData.append('BankName', data.BankName);
+    formData.append('BankLocation', data.BankLocation);
+    formData.append('Transit', data.Transit);
+    formData.append('Remarks', data.Remarks);
+    formData.append('LastRemarks', data.LastRemarks);
+    formData.append('LastRejectionReason', data.LastRejectionReason);
+    formData.append('CreatedBy', data.CreatedBy.toString());
+    formData.append('UpdatedBy', data.UpdatedBy.toString());
+    formData.append('DepartmentHead', data.DepartmentHead.toString());
+    formData.append('Department', data.Department.toString());
+    
+    // Add files if provided
+    if (files) {
+      Object.entries(files).forEach(([key, file]) => {
+        formData.append(key, file);
+      });
+    }
+    
     const response = await api.post<PaymentRequestResponse>(
       '/payment-requests/',
-      data,
+      formData,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
           'Accept': 'application/json',
         },
       }

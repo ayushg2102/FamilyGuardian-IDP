@@ -7,7 +7,12 @@ export const ENDPOINTS = {
     FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot_password/`,
     CHANGE_PASSWORD: `${API_BASE_URL}/auth/change-password/`,
   },
+  USERS: {
+    GET_USER_BY_ID: `${API_BASE_URL}/users/`,
+  },
   PAYMENTS: {
+    DASHBOARD_STATS: `${API_BASE_URL}/payment-requests/summary_counts/`,
     PAYMENT_REQUESTS: `${API_BASE_URL}/payment-requests/`,
+    DASHBOARD_NOTIFICATIONS: `${API_BASE_URL}/payment-request-approvals/`
   },
 };

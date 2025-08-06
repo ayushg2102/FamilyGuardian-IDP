@@ -813,7 +813,7 @@ const CreateRequest: FC = () => {
                                       <Row gutter={[16, 16]}>
                                         <Col xs={24}>
                                           <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                            <label style={{ fontWeight: 500, color: '#1A1A1A' }}>Description</label>
+                                            <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Description <span style={{ color: 'red' }}>*</span></label>
                                           </div>
                                           <Form.Item
                                             {...glRestField}
@@ -821,9 +821,6 @@ const CreateRequest: FC = () => {
                                             rules={[{ required: true, message: 'Please enter description!' }]}
                                             style={{ marginBottom: 16 }}
                                           >
-                                            <div style={{ textAlign: 'left', marginBottom: 8 }}>
-                                              <label style={{ fontWeight: 500, color: '#1A1A1A' }}>GL Description <span style={{ color: 'red' }}>*</span></label>
-                                            </div>
                                             <Input.TextArea
                                               className={styles.formTextArea}
                                               style={{ width: '100%' }}

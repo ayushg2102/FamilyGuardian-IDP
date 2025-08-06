@@ -12,10 +12,12 @@ import {
   Upload,
   message,
   Space,
+  Spin,
 } from 'antd';
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import { profileData } from '../mock/mockData';
 import { useChangePassword } from '../hooks/useChangePassword';
+import { useUserProfile } from '../hooks/useUserProfile';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -31,42 +33,76 @@ const divisions = ['Corporate Finance', 'Retail', 'Enterprise'];
 
 const Profile: React.FC = () => {
   const [form] = Form.useForm();
-  const [avatarUrl, setAvatarUrl] = useState(profileData.avatar);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [dirty, setDirty] = useState(false);
   const [passwordForm] = Form.useForm();
-  const { changePassword, isLoading, error } = useChangePassword();
+  const { changePassword, isLoading: passwordLoading, error: passwordError } = useChangePassword();
+  
+  // Get user from auth context
+  const { user } = useAuth();
+  
+  // Fetch user profile data
+  const { profileData, isLoading, error, refetch } = useUserProfile(user?.id || user?.UserId);
+
+  // Update avatar URL when profile data loads
+  useEffect(() => {
+    if (profileData?.UserImage) {
+      setAvatarUrl(profileData.UserImage);
+    }
+  }, [profileData]);
 
   // Store original data for cancel
   const [originalProfile, setOriginalProfile] = useState({
-    avatar: profileData.avatar,
-    fullName: profileData.name,
-    email: profileData.email,
-    phoneCode: '+91',
-    phone: profileData.phone.replace(/^[^0-9]+/, ''),
-    department: profileData.department,
+    avatar: '',
+    fullName: '',
+    email: '',
+    phoneCode: '+93',
+    phone: '',
+    department: '',
     division: 'Corporate Finance',
   });
 
-  // Simplified initial values; adapt as needed
-  const initialValues = {
-    userId: profileData.userId || '',
-    userName: profileData.userName || '',
-    fullName: profileData.name,
-    firstName: profileData.firstName || '',
-    lastName: profileData.lastName || '',
-    email: profileData.email,
-    emailAddress: profileData.emailAddress || profileData.email || '',
-    phoneCode: profileData.countryCode || '+91',
-    phone: profileData.phone.replace(/^[^0-9]+/, ''),
-    mobile: profileData.mobile || '',
-    department: profileData.department,
-    departmentCode: profileData.departmentCode || '',
-    division: profileData.division || 'Corporate Finance',
-    gender: profileData.gender || '',
-    userStatus: profileData.userStatus || '',
-    passwordExpiry: profileData.passwordExpiry || '',
+  // Update original profile when data loads
+  useEffect(() => {
+    if (profileData) {
+      const fullName = `${profileData.FirstName || ''} ${profileData.LastName || ''}`.trim();
+      setOriginalProfile({
+        avatar: profileData.UserImage || '',
+        fullName,
+        email: profileData.EmailAddress,
+        phoneCode: profileData.CountryCode?.DialCode || '+93',
+        phone: profileData.Mobile || '',
+        department: profileData.Department?.toString() || '',
+        division: 'Corporate Finance',
+      });
+    }
+  }, [profileData]);
+
+  // Get initial values from profile data
+  const getInitialValues = () => {
+    if (!profileData) return {};
+    
+    const fullName = `${profileData.FirstName || ''} ${profileData.LastName || ''}`.trim();
+    return {
+      userId: profileData.UserId?.toString() || '',
+      userName: profileData.UserName || '',
+      fullName,
+      firstName: profileData.FirstName || '',
+      lastName: profileData.LastName || '',
+      email: profileData.EmailAddress,
+      emailAddress: profileData.EmailAddress,
+      phoneCode: profileData.CountryCode?.DialCode || '+93',
+      phone: profileData.Mobile || '',
+      mobile: profileData.Mobile || '',
+      department: profileData.Department?.toString() || '',
+      departmentCode: profileData.Department?.toString() || '',
+      division: 'Corporate Finance',
+      gender: profileData.Gender?.toString() || '',
+      userStatus: profileData.UserStatus?.toString() || '',
+      passwordExpiry: '',
+    };
   };
 
   const handleAvatarUpload = (info: any) => {
@@ -157,6 +193,47 @@ const Profile: React.FC = () => {
     message.info('Changes reverted');
   };
 
+  // Update form fields when profile data loads
+  useEffect(() => {
+    if (profileData) {
+      form.setFieldsValue(getInitialValues());
+    }
+  }, [profileData, form]);
+
+  // Show loading spinner while fetching data
+  if (isLoading) {
+    return (
+      <div style={{ padding: '32px 0', background: '#fafbfc', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  // Show error message if data fetch failed
+  if (error) {
+    return (
+      <div style={{ padding: '32px 0', background: '#fafbfc', minHeight: '100vh' }}>
+        <Title level={3} style={{ marginLeft: 32, marginBottom: 24 }}>Profile & Password</Title>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <p>Error loading profile data: {error}</p>
+          <Button onClick={() => refetch()} type="primary">Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render form if no profile data
+  if (!profileData) {
+    return (
+      <div style={{ padding: '32px 0', background: '#fafbfc', minHeight: '100vh' }}>
+        <Title level={3} style={{ marginLeft: 32, marginBottom: 24 }}>Profile & Password</Title>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <p>No profile data available</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '32px 0', background: '#fafbfc', minHeight: '100vh' }}>
       <Title level={3} style={{ marginLeft: 32, marginBottom: 24 }}>Profile & Password</Title>
@@ -194,7 +271,7 @@ const Profile: React.FC = () => {
             <Form
               form={form}
               layout="vertical"
-              initialValues={initialValues}
+              initialValues={getInitialValues()}
               onFieldsChange={onFieldsChange}
               onFinish={handleSave}
               requiredMark={false}
