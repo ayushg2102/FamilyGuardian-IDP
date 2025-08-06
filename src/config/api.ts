@@ -1,4 +1,21 @@
-const API_BASE_URL = 'http://172.172.233.44:9000/api';
+// Use environment-based API URL
+// Priority: Custom override > Environment-specific > Default
+const getApiBaseUrl = () => {
+  // Allow override via environment variable
+  if (import.meta.env.VITE_OVERRIDE_API_URL) {
+    return import.meta.env.VITE_OVERRIDE_API_URL;
+  }
+  
+  // Production environment (Vercel deployment)
+  if (import.meta.env.PROD) {
+    return import.meta.env.VITE_API_BASE_URL_PROD || '/api';
+  }
+  
+  // Development environment
+  return import.meta.env.VITE_API_BASE_URL || 'http://172.172.233.44:9000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export const ENDPOINTS = {
   AUTH: {
