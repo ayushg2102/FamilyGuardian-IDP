@@ -29,11 +29,6 @@ export async function apiRequest<T = unknown>(
       return (await response.text()) as unknown as T;
     }
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      notify('error', 'Network Error', error.message);
-    } else {
-      notify('error', 'Network Error', 'An unexpected error occurred.');
-    }
     return null;
   }
 }
